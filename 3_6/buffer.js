@@ -3,7 +3,7 @@ console.log('from():', buffer);
 console.log('length:',buffer.length);
 console.log('toString():', buffer.toString());
 
-const array = [Buffer.from('띄엄'),Buffer.from('띄엄'),Buffer.from('띄어쓰기')];
+const array = [Buffer.from('띄엄 '),Buffer.from('띄엄 '),Buffer.from('띄어쓰기')];
 const buffer2 = Buffer.concat(array);
 console.log('concat():', buffer2.toString());
 
