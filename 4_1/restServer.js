@@ -73,6 +73,7 @@ http.createServer(async (req, res) => {
         return res.end('ok');
       }
     }
+    
     res.writeHead(404);
     return res.end('NOT FOUND');
   } catch (err) {
@@ -85,4 +86,16 @@ http.createServer(async (req, res) => {
     console.log('8082번 포트에서 서버 대기 중입니다');
   });
 
-  //
+  /* 
+  다른 HTTP 요청 메서드들을 추가하고, 데이터베이스 대용으로 users라는 객체를 선언하여 사용자 정보를 저장했다.
+  POST /user 요청에는 사용자를 새로 저장하고 있으며, PUT /user/아이디 요청에서는 해당 아이디의 사용자 데이터를 수정하고 있다.
+  DELETE /user/아이디 요청에서는 해당 아이디의 사용자를 제거한다.
+
+  POST와 PUT 요청을 처리할 떄 조금 특이한 것을 볼 수 있다.
+  바로 req.on('data')와 req.on('end')의 사용이다.
+  요청의 본문에 들어 있는 데이터를 꺼내기 위한 작업이라고 보면 된다.
+  req와 res도 내부적으로는 스트림(각각 readStream 과 writeStream)으로 되어 있으므로 요청/응답의 데이터가 스트림 형식으로 전달된다.
+  또한 on에서 볼 수 있듯이 이벤트도 달려 있다. 3장에서 배웠던 내용들이다.
+  다만 받은 데이터는 문자열이므로 JSON으로 만드는 JSON.parse 과정이 필요하다.
+
+  */
