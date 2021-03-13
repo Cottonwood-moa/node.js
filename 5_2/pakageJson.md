@@ -65,3 +65,7 @@ npm init 실행이 완료되면 폴더에 다음과 같은 파일이 생성된�
 scripts 부분은 npm명령어를 저장해두는 부분이다. 콘솔에서 npm run[스크립트 명령어]를 입력하면 해당 스크립트가 실행된다.
 예를 들어 npm run test를 하면 echo "Error: no test specified" && exit 1이 실행된다.
 이것은 콘솔에 해당 문자열을 출력하라는 뜻이고, exit 1은 에러와 함께 종료하라는 뜻이다. 콘솔에 직접 명령어를 실행해보자.
+
+test 스크립트 외에도 scripts 속성에 명령어 여러 개를 등록해두고 사용할 수 있다.
+보통 start 명령어에 node [파일명]을 저장해두고 npm start로 실행한다.
+start 나 test 같은 스크립트는 run 을 붙이지 않아도 실행된다.
