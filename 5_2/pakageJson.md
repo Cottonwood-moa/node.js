@@ -121,4 +121,63 @@ npm install morgan cookie-parser express-session
 
 설치한 패키지의 버전은 이 책과 다를 수 있다.
 설치한 패키지들이 dependencies 속성에 기록된다.
+개발용 패키지를 설치할 수도 있다.
+실제 배포시에는 사용되지 않고 개발 중에만 사용되는 패키지들이다.
+npm install --save-dev[패키지][...]로 설치한다.
+--save-dev가 개발용 패키지임을 나타낸다.
+여기서는 나중에 사용할 nodemon 패키지를 설치해보자.
+소스 코드가 바뀔 때마다 자동으로 노드를 재실행해주는 패키지이다.
+
+npm install --save-dev nodemon
+
+package.json 에 새로운 속성이 생겼다.
+devDependencies 속성에서는 개발용 패키지들만 따로 관리한다.
+
+npm 에는 전역(global)설치라는 옵션도 있다.
+패키지를 현재 폴더의 node_modules에 설치하는 것이 아니라 npm이 설치되어 있는 폴더(윈도의 경우 기본 경로는 C:\Users\사용자이름\AppData\Roaming\npm)에 설치한다.
+이 폴더의 경로는 보통 시스템 환경 변수에 등록되어 있으므로 전역 설치한 패키지는 콘솔의 명령어로 사용할 수 있다.
+전역 설치를 했다고 해서 패키지를 모든 곳에서 사용한다는 뜻은 아니다. 대부분 명령어로 사용하기 위해 전역 설치한다.
+그럼 전역 패키지 한 개를 설치하여 사용해보자.
+
+npm install --global rimraf
+
+리눅스나 맥에서는 전역 설치 시에 권한이 필요하므로 sudo 를 앞에 붙여야 한다.
+sudo npm install --global rimraf 를 입력한다.
+방금 rimraf 라는 패키지를 전역 설치했다.
+rimraf 는 리눅스나 맥의 rm -rf명령어를 윈도에서도 사용할 수 있게 해주는 패키지이다.
+rm -rf는 지정한 파일이나 폴더를 지우는 명령어이다. 
+전역 설치했으므로 rimraf 명령어를 콘솔에서 사용할 수 있다.
+전역 설치한 패키지는 package.json에 기록되지 않는다.
+rimraf 로 node_modules 폴더를 삭제해보자.
+
+rimraf node_modules
+
+현재 폴더 내에는 package.json과 package-lock.json 밖에 없는 상태이다.
+설치한 패키지들을 지워버렸지만 package.json 에 설치한 패키지 내역이 들어 있으므로 걱정하지 않아도 된다.
+npm imstall 만 하면 알아서 다시 설치된다.
+즉, node_modules 는 언제든지 npm install 로 설치할 수 있으므로 node_modules는 보관할 필요가 없다는 점을 알 수 있다.
+깃 같은 버전 관리 프로그램과 같이 사용할 때도 node_modules는 커밋하지 않는다. 
+중요한 파일은 package.json 이다.
+
+npx
+전역 설치를 기피하는 개발자들도 있다.
+전역 설치한 패키지는 package.json에 기록되지 않아 다시 설치할 떄 어려움이 따르기 때문이다.
+이러한 경우를 위한 명령어로 npx가 있다.
+npm install --save-dev rimraf
+npx rimraf node_modules
+
+위와 같이 rimraf 모듈을 package.json 의 devDependencies 속성에 기록한 후,
+앞에 npx 명령어를 붙여 실행하면 된다. 그러면 패키지를 전역 설치한 것과 같은 효과(명령어로 사용 가능)를 얻을 수 있다.
+패키지가 package.json 에 기록되었으므로 버전 관리도 용이하다.
+앞으로 전역 설치 대신 npx를 사용하자.
+
+npm에 등록되지 않은 패키지
+모든 패키지가 npm 에 등록되어 있는 것은 아니다. 
+일부 패키지는 오픈 소스가 아니거나 개발 중이므로 깃허브나 nexus 등의 저장소에 보관되어 있을 수도 있다.
+그러한 패키지들도 npm install [저장소 주소] 명령어를 통해 설치할 수 있다.
+
+명령어 줄여쓰기
+
+npm install 명령어는 npm i 로 줄여 쓸 수 있다.
+--save -dev 옵션은 -D로, --global 옵션은 -g로 줄여 써도 된다.
 
