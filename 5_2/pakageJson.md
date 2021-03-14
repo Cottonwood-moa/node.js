@@ -77,3 +77,48 @@ npm install [패키지 이름]을 package.json이 있는 폴더의 콘솔에서 
 ERROR 만이 진짜 에러고 WARN 은 단순한 경고일 뿐이다.
 거슬린다면 콜솔에 출력된 대로 해결하면 된다.
 보통 구글에서 메시지를 검색해보면 해결 방법이 나온다.
+
+pm WARN npmtest@0.0.1 No repository field.
+이 경고는 package.json에 repository 속성이 없어서 발생한 것이다.
+나중에 소스 코드를 깃허브나 깃햅 등과 같은 저장소에 저장한 후, repository 속성을 만들고 깃허브나 깃랩 주소를 적으면 된다.
+단순한 경고이므로 해결하지 않아도 된다.
+앞으로 나오는 모든 Warning 들도 마찬가지이다.
+
+audited 50 packages in 3.822s
+패키지를 설치할 떄 audited [숫자] packages 라는 문장이 출력된다.
+이는 패키지에 있을 수 있는 취약점을 자동으로 검사했다는 의미이다.
+가끔씩 취약점이 발견되면 아래에 다음과 같은 문장이 출력된다.
+found [발견 숫자][심각도] severity vulnearabilities run `npm audit fix` to fix them, or `npm audit` for details
+npm audit 은 패키지의 알려진 취약점을 검사할 수 있는 명령어이다.
+npm에 패키지들이 워낙 많다 보니 일부 패키지는 악성 코드를 담고 있다.
+이런 것들이 npm에 보고되는데 npm audit 을 통해 내가 혹시 악성 코드가 담긴 패키지를 설치하지 않았는지 검사할 수 있다.
+npm audit fix를 입력하면 npm이 스스로 수정할 수 있는 취약점을 알아서 수정한다. 주기적으로 수정해주자.
+
+드디어 첫 패키지를 설치했다.
+dependencies 하는 속성이 새로 생겼고, express 라는 이름과 함께 설치된 버전이 저장되었다.
+설치된 버전은 다를 수 있다. 버전 앞에 ^표시가 붙어있는데, 여기에는 특별한 의미가 있다.
+다음 절에서 알아보자.
+
+--save 옵션
+패키지를 설치할 때 npm install 명령어에 --save 옵션을 붙이는 책이나 블로그를 많이 볼 수 있다.
+dependencies 에 패키지 이름을 추가하는 옵션이지만 npm@5 부터는 기본값으로 설정되어 있으므로 따로 붙이지 않아도 된다.
+
+추가로 node_modules 라는 폴더도 생성되었다.
+그 안에 설치한 패키지들이 들어 있다.
+분명히 Express 하나만 설치했는데 패키지가 여러 개 들어 있다.
+이는 Express가 의존하는 패키지들이다. 
+패키지 하나가 다른 여러 패키지에 의존하고, 그 패키지들은 또 다른 패키지들에 의존한다.
+이렇게 의존관계가 복잡하게 얽혀있어 pakcage.json 이 필요한 것이다.
+
+package-lock.json 이라는 파일도 생성되었다.
+내용을 보면 직접 설치한 express 외에도 node_modules 에 들어 있는 패키지들의 정확한 버전과 의존 관계가 담겨 있다.
+npm 으로 패키지를 설치, 수정, 삭제할때 마다 패키지들 간의 내부 의존 관계를 이 파일에 저장한다.
+이제 모듈 여러개를 동시에 설치해보자.
+npm install [패키지1][패키지2][...]와 같이 패키지들을 나열하면 된다.
+
+
+npm install morgan cookie-parser express-session
+
+설치한 패키지의 버전은 이 책과 다를 수 있다.
+설치한 패키지들이 dependencies 속성에 기록된다.
+
