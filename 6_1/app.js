@@ -1,16 +1,17 @@
 const express = require('express');
+const path = require('path');
 
 const app = express();
 app.set('port', process.env.PORT || 3000);
 
-app.get('/', (req,res)=>{
-    res.send('Hello, Express');
+app.get('/', (req, res) => {
+  // res.send('Hello, Express');
+  res.sendFile(path.join(__dirname, '/index.html'));
 });
 
-app.listen(app.get('port'), ()=>{
-    console.log(app.get('port', '번 포트에서 대기 중'));
+app.listen(app.get('port'), () => {
+  console.log(app.get('port'), '번 포트에서 대기 중');
 });
-
 /* 
 Express 모듈을 실행해 app 변수에 할당한다.
 익스프레스 내부에 http 모듈이 내장되어 있으므로 서버의 역할을 할 수 있다.
@@ -28,5 +29,9 @@ GET 요청 외에도 POST, PUT, PATCH, DELETE, OPTIONS에 대한 라우터를 �
 listen 을 하는 부분은 http 웹 서버와 동일하다.
 4장에서 서버를 구동했던 것과 동일하게 포트를 연결하고 서버를 실행한다.
 포트는 app.get('port')로 가져왔다.
+
+ㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡ
+단순한 문자열 대신 HTML 로 응답하고 싶다면 res.sendFile 메서드를 사용하면 된다.
+단, 파일의 경로를 path 모듈을 사용해서 지정해야 한다.
 
 */
