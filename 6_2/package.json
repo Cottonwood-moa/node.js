@@ -1,0 +1,11 @@
+{
+  "name": "learn-express",
+  "version": "0.0.1",
+  "description": "익스프레스를 배우자",
+  "main": "app.js",
+  "scripts": {
+    "start": "nodemon app"
+  },
+  "author": "Cottonwood",
+  "license": "ISC"
+}

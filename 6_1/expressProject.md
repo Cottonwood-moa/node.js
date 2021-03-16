@@ -10,9 +10,10 @@ npm 에는 서버를 제작하는 과정에서의 불편함을 해소하고 편�
 package.json 을 생성해주는 npm init 명령어를 콘솔에서 호출해도 되고
 직접 파일을 만들어도 된다.
 version 이나 description, author, license는 원하는 대로 자유롭게 수정해도 된다.
-
+!!!
 scripts 부분에 start 속성은 잊지 말고 넣어줘야 한다. 
 nodemon app 을 하면 app.js를 nodemon 으로 실행한다는 뜻이다.
+!!!
 서버 코드에 수정 사항이 생길 떄마다 매번 서버를 재시작하기는 귀찮으므로 nodemon이 서버를 자동으로 재시작한다.
 nodemon이 실행되는 콘솔에 rs를 입력해서 수동으로 재시작할 수도 있다.
 nodemon은 개발용으로만 사용하는 것을 권장한다. 
