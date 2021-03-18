@@ -88,4 +88,20 @@ process.env.COOKIE_SECRET에 cookiesecret 값이 할당된다.
 1.morgan
 morgan 연결 후 localhost : 3000 에 다시 접속해보면 기존 로그 외에 추가적인 로그를 볼 수 있다.
 현재 콘솔에 나오는 GET / 500 7.409ms -50 로그는 morgan 미들웨어에서 나오는 것이다.
-*/
+요청과 응답에 대한 정보를 콘솔에 기록한다.
+morgan 미들웨어는 다음과 같이 사용한다.
+ app.use(morgan('dev'));
+인수로 dev 외에 combined, common, short, tiny 등을 넣을 수 있다.
+인수를 바꾸면 로그가 달라지니 직접 테스트해보자.
+필자는 개발환경에서는 dev를 배포 환경에서는 combined 를 애용한다.
+dev 모드 기준으로 GET / 500 7.409ms - 50 은 각각 [HTTP 메서드][주소][HTTP 상태 코드][응답속도]-[응답바이트]를 의미한다. 요청과 응답을 한눈에 볼 수 있어 편리하다.
+
+2.static
+static 미들웨어는 정적인 파일들을 제공하는 라우터 역할을 한다.
+기본적으로 제공되기에 따로 설치할 필요 없이 express 객체 안에서 꺼내 장착하면 된다.
+다음과 같이 사용한다.
+  app.use('요청경로', express.static('실제경로'));
+  app.use('/',express.static(path.join(__dirname, 'public')));
+함수의 인수로 정적 파일들이 담겨 있는 폴더를 지정하면 된다.
+
+ */
