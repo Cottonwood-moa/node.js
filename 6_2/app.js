@@ -85,4 +85,7 @@ process.env.COOKIE_SECRET에 cookiesecret 값이 할당된다.
 
 각각의 미들웨어를 살펴보자.
 
+1.morgan
+morgan 연결 후 localhost : 3000 에 다시 접속해보면 기존 로그 외에 추가적인 로그를 볼 수 있다.
+현재 콘솔에 나오는 GET / 500 7.409ms -50 로그는 morgan 미들웨어에서 나오는 것이다.
 */
