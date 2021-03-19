@@ -104,4 +104,27 @@ static 미들웨어는 정적인 파일들을 제공하는 라우터 역할을 �
   app.use('/',express.static(path.join(__dirname, 'public')));
 함수의 인수로 정적 파일들이 담겨 있는 폴더를 지정하면 된다.
 
- */
+3.body-parser
+요청의 본문에 있는 데이터를 해석해서 req.body 객체로 만들어주는 미들웨어이다.
+보통 폼 데이터나 AJAX 요청의 데이터를 처리한다. 단, 멀티파트(이미지 동영상 파일)데이터는 처리하지 못한다.
+그 경우에는 뒤에 나오는 multer 모듈을 사용하면 된다.
+body-parser 미들웨어는 다음과 같이 사용한다.
+  app.use(express.jseon());
+  app.use(express.urlencoded({extend:false}));
+다른 책이나 코드에서 body-parser를 설치하는 것을 볼 수도 있다.
+하지만 express 상위버전부터 body_parser 미들웨어의 일부 기능이 익스프레스에 내장되었으므로 따로 설치할 필요가 없다.
+단, body=parser 를 직접 설치해야 하는 경우도 있다.
+body-parser는 JSON과 URL-encoded 형식의 데이터 외에도 Raw, Text 형식의 데이터를 추가로 해석할 수 있다.
+RAW는 요청의 본문이 버퍼 데이터일 때, Text 는 텍스트 데이터일 때 해석하는 미들웨어 이다.
+버퍼나 텍스트 요청을 처리할 필요가 있다면 body-parser를 설치한 후 다름과 같이 추가한다.
+
+  npm i body-parser
+
+  const bodyparser = requier('body-parser');
+  app.use(bodyParser.raw());
+  app.use(bodyParser.text());
+
+요청 데이터 종류를 간단히 살펴보자.
+JSON은 JSON 형식의 데이터 전달 방식이고, URL-excoded 는 주소 형식으로 데이터를 보내는 방식이다.
+폼 전송은 URL-encoded 방식을 주로 사용한다.
+  */
