@@ -138,5 +138,73 @@ RAW는 요청의 본문이 버퍼 데이터일 때, Text 는 텍스트 데이터
 요청 데이터 종류를 간단히 살펴보자.
 JSON은 JSON 형식의 데이터 전달 방식이고, URL-excoded 는 주소 형식으로 데이터를 보내는 방식이다.
 폼 전송은 URL-encoded 방식을 주로 사용한다.
+urlencoded 메서드를 보면 {extends: false}라는 옵션이 들어 있다.
+이 옵션이 false 면 노드의 querystring 모듈을 사용하여 쿼리스트링을 해석하고, true 면 qs 모듈을 사용하여 쿼리스트링을 해석한다.
+qs 모듈은 내장 모듈이 아니라 npm 패키지이며, querystring 모듈의 기능을 좀 더 확장한 모듈이다.
+4.2 절에서 POST 와 PUT 요청의 본문을 전달받으려면 req.on('data')와 req.on('end')로 스트림을 사용해야 했던 것을 기억할 것이다.
+body-parser를 사용하면 그럴 필요가 없다.
+이 패키지가 내부적으로 스트림을 처리해 req.body 에 추가한다.
+예를 들어, JSON의 형식으로 {name : 'cottonwood', book:'nodejs'}를 본문으로 보낸다면 req.body에 그대로 들어간다.
+URL-encoded 형식으로 name=cottonwood&book=nodejs 를 본문으로 보낸다면 req.body 에 {name : 'cottonwood', book:'nodejs'}가 들어간다.
+
+4.cookie-parser
+cookie-parser 는 요청에 동봉된 쿠키를 해석해 req.cookies 객체로 만든다.
+4.3절의 parseCookies 함수와 기능이 비슷하다.
+cookie-parser 미들웨어는 다음과 같이 사용한다.
+  app.use(cookieParser(비밀키));
+해석된 쿠키들을 req.cookies 에 들어간다.
+예를들어 name = cottonwood 쿠키를 보냈다면 req.cookies는 {name : cottonwood}가 된다.
+유효기간이 지난 쿠키는 알아서 걸러낸다.
+첫 번째 인수로 비밀 키를 넣어줄 수 있다. 서명된 쿠키가 있는 경우, 제공한 비밀 키를 통해 해당 쿠키가 내 서버가 만든 쿠키임을 증명할 수 있다.
+쿠키는 클라이언트가 위조하기 쉬우므로 비밀 키를 통해 만들어낸 서명을 쿠키 값 뒤에 붙인다. 서명이 붙으면 쿠키가 name = cottonwood.sign 과 같은 모양이 된다.
+서명된 쿠키는 req.cookies 대신 req.signedCookies 객체에 들어 있다.
+cookie-parser 가 쿠키를 생성할 때 쓰이는 것은 아니다.쿠키를 생성/제거하기 위해서는 res.cookie res.clearCookie 메서드를 사용해야 한다.
+res.cookie(키, 값, 옵션)형식으로 사용한다. 옵션은 4.3절에서 살펴본 쿠키 옵션과 동일하다.
+domainm expiresm httpOnly, maxAge, path, secure 등이 있다.
+
+  res.cookie('name', 'cottonwood', {
+    expires: new Date(Date.now() + 900000),
+    httpOnly: true,
+    secure: true,
+  });
+  res.clearCookie('name' , 'cottonwood', {httpOnly: true, secure : true});
+
+쿠키를 지우려면, 키와 값 외에 옵션도 정확히 일치해야 쿠키가 지워진다.
+단, expires 나 maxAge 옵션은 일치할 필요가 없다.
+옵션 중에는 signed 라는 옵션이 있는데, 이를 true 로 설정하면 쿠키 뒤에 서명이 붙는다. 내 서버가 쿠키를 만들었다는 것은 검증할 수 있으므로 대부분의 경우 서명 옵션을 켜두는 것이 좋다.
+서명을 위한 비밀 키는 cookieParser 미들웨어에 인수로 넣은 process.env.COOKIE_SECRET이 된다.
+
+5.express-session
+세션관리용 미들웨어이다. 로그인 들의 이유로 세션을 구현하거나 특정 사용자를 위한 데이터를 임시적으로 저장해둘 때 매우 유용하다.
+세션은 사용자별로 req.session 객체 안에 유지된다.
+  app.use(session({
+    resave: false,
+    saveUninitialized: false,
+    secret: process.env.COOKIE_SECRET,
+    cookie: {
+      httpOnly: true,
+      secure: false,
+    },
+    name: 'session-cookie',
+  }));
+express-session 1.5 버전 이전에는 내부적으로 cookie-parser 를 사용하고 있어서 cookie-parser 미들웨어보다 뒤에 위치해야 했지만,
+1.5 버전 이후부터는 사용하지 않게 되어 순서가 상관없어졌다.
+그래도 현재 어떤 버전을 사용하고 있는지 모른다면 cookie-parser 미들웨어 뒤에 놓는 것이 안전하다.
+
+express-session 은 인수로 세션에 대한 설정을 받는다.
+resave 는 요청이 올 때 세션에 수정 사항이 생기지 않더라도 세션을 다시 저장할지 설정하는 것이고, saveUninitalized는 세션에 저장할 내역이 없더라도
+처음부터 세션을 생성할지 설정하는 것이다. 현재는 둘다 필요 없으므로 false로 했다.
+express-session 은 세션 관리 시 클라이언트에 쿠키를 보낸다. 
+4.3절에서 배운 세션 쿠키가 이것이다.
+안전하게 쿠키를 전송하려면 쿠키에 서명을 추가해야 하고, 쿠키를 서명하는 데 secret의 값이 필요하다.
+cookie-parser 의 secret과 같게 설정하는 것이 좋다.
+세션 쿠키의 이름은 name 옵션으로 설정한다. 기본 이름은 connect.sid이다.
+
+중략
+
+6.미들웨어 특성 활용하기
+
+7.multer
 
   */
+
