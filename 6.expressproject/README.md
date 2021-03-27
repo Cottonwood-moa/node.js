@@ -205,3 +205,5 @@ body-parser
 단 멀티파트(이미지,동영상,파일) 데이터는 처리하지 못한다.
 그 경우에는 뒤에 나오는 multer 모듈을 사용하면 된다.
 body-parser 미들웨어는 다음과 같이 사용하면 된다.
+    app.use(expression.json());
+    app.use(express.urlencoded({extended:false}));
