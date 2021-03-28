@@ -207,3 +207,24 @@ body-parser
 body-parser 미들웨어는 다음과 같이 사용하면 된다.
     app.use(expression.json());
     app.use(express.urlencoded({extended:false}));
+다른 책이나 코드에서 body-parser를 서ㄹ치하는 것을 볼 수도 있다.
+하지만 익스프레스 상위버전부터 bodyparser 미들웨어의 일부 기능이 익스프에스에 내장되었으므로 따로 설치할 필요가 없다.
+단, body-parser를 직접 설치해야 하는 경우도 있다. body-parser는 JSON과 URL-encoded 형식의 데이터 외에도 Raw, Text 형식의 데이터를 추가로 해석할 수 있다.
+Raw는 요청의 본문이 버퍼 데이터일 때, Text는 텍스트 데이터일 때 해석하는 미들웨어이다.
+버퍼나 텍스트 요청을 처리할 필요가 있다면 body-parser를 설치한 후 다음과 같이 추가하면 된다.
+
+    npm i body-parser
+    
+    const bodyParser = require('body-parser');
+    app.use(bodyParser.raw());
+    app.use(bodyParser.text());
+
+요청 데이터 종류를 간단히 살펴보자 JSON은 JSON형식의 데이터 전달 방식이고, URL-encoded는 주소 형식으로 데이터를 보내는 방식이다.
+ulrecoded 메서드를 보면 {extended:false}라는 옵션이 들어 있다.
+이 옵션이 false면 노드의 querystring 모듈을 사용하여 쿼리스트링을 해석하고, true면 qs 모듈을 사용하여 쿼리스트링을 해석한다.
+qs 모듈을 내장 모듈이 아니라 npm 패키지이며, querystring 모듈의 기능을 좀 더 확장한 모듈이다.
+POST와 PUT 요청의 본문을 전달받으려면 req.on('data')와 req.on('end')로 스트림을 사용해야 했던 것을 기억할 것이다.
+body-parser를 사용하면 그럴 필요가 없다. 이 패키지가 내부적으로 스트림을 처리해 req.body에 추가한다.
+예를 들어, JSON 형식으로 {name : 'Cottonwood', book: 'nodejs'}를 본문으로 보낸다면 req.body에 그대로 들어간다. URL-encoded형식으로
+name=Cottonwood&book=nodejs를 본문으로 보낸다면 req.body에  {name : 'Cottonwood', book: 'nodejs'} 가 들어간다.
+
