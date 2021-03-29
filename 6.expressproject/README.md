@@ -228,3 +228,83 @@ body-parser를 사용하면 그럴 필요가 없다. 이 패키지가 내부적�
 예를 들어, JSON 형식으로 {name : 'Cottonwood', book: 'nodejs'}를 본문으로 보낸다면 req.body에 그대로 들어간다. URL-encoded형식으로
 name=Cottonwood&book=nodejs를 본문으로 보낸다면 req.body에  {name : 'Cottonwood', book: 'nodejs'} 가 들어간다.
 
+cookie-parser
+cookie-parser 는 요청에 동봉된 쿠키를 해석해 req.cookies 객체로 만든다.
+parseCookies 함수와 기능이 비슷하다.
+cookie-parser 미들웨어는 다음과 같이 사용한다.
+
+    app.use(cookieParser(비밀키));
+
+해석된 쿠키들은 req.cookies 객체에 들어간다.
+예를 들어 name=cottonwood 쿠키를 보냈다면 req.cookies는 {name : 'Cottonwood'}가 된다.
+유효기간이 지난 쿠키는 알아서 걸러낸다.
+첫 번째 인수로 비밀 키를 넣어줄 수 있다. 서명된 쿠키가 있는 경우, 제공한 비밀 키를 통해 해당 쿠키가 내 서버가 만든 쿠키임을 검증할 수 있다.
+쿠키는 클라이언트에서 위조하기 쉬우므로 비밀키를 통해 만들어낸 서명을 쿠키 값 뒤에 붙인다. 서명이 붙으면
+name=Cottonwood.sign 과 같은 모양이 된다. 서명된 쿠키는 req.cookies 대신 req.sigendCookies 객체에 들어있다.
+cookie-parser가 쿠키를 생성할 때 쓰는 것은 아니다. 쿠키를 생성/제거하기 위해서는 res.cookie, res.clearCookie 메서드를 사용해야 한다.
+res.cookie(키, 값, 옵션) 형식으로 사용한다.
+옵션은 이전에 살펴본 쿠키 옵션과 동일하다.
+domain, expires, httpOnly, maxAge, path, secure 등이 있다.
+
+    res.cookie('name', 'zerocho', {
+        expires:new Date(Date.now() + 900000),
+        httpOnly: true,
+        secure:true,
+    });
+    res.clearCookie('name','Cottonwood',{httpOnly : ture,secure: true});
+
+쿠키를 지우려면, 키와 값 외에 옵션도 정확히 일치해야 쿠키가 지워진다.
+단, expires나 maxAge 옵션은 일치할 필요가 없다.
+옵션 중에는 signed라는 옵션이 있는데, 이를 true로 설정하면 쿠키 뒤에 서명이 붙는다. 
+내 서버가 쿠키를 만들었다는 것은 검증할 수 있으므로 대부분의 경우 서명 옵션을 켜두는 것이 좋다.
+서명을 위한 비밀 키는 cookieParser 미들웨어에 인수로 넣은 process.env.COOKIE_SECRET이 있다.
+
+express-session
+세션 관리용 미들웨어이다.
+로그인 등의 이유로 세션을 구현하거나 특정 사용자를 위한 데이터를 임시적으로 저장해둘 때 매우 유용하다.
+세션은 사용자별로 req.session 객체안에 유지된다.
+
+    app.use(session({
+        resave: false,
+        saveUninitialized: false,
+        secret: process.env.COOKIE_SECRET,
+        cookie:{
+            httpOnly:true,
+            secure:false,
+        },
+        name:'session-cookie'
+    }));
+
+express-session 1.5 버전 이전에는 내부적으로 cookie-parser를 사용하고 있어서 cookie-parser 미들웨어 보다 뒤에 위치해야 했지만
+1.5 버전 이후부터는 사용하지 않게 되어 순서가 상관없어졌다.
+그래도 현재 어떤 버전을 사용하고 있는지 모른다면 cookie-parser 미들웨어 뒤에 놓는 것이 안전하다.
+
+express-session 은 인수로 세션에 대한 설정을 받는다.
+
+resave는 요청이 올 때 세션에 수정 사항이 생기지 않더라도 세션을 다시 저장할지 설정하는 것이고, saveUninitialized는 세션에 저장할 내역이 없더라도
+처음부터 세션을 설정할지 설정하는 것이다. 현재는 둘 다 필요 없으르모 false 로 했다.
+express-session 은 세션 관리 시 클라이언트에 쿠키는 보낸다. 4.3절에서 배운 세션 쿠키가 이것이다.
+안전하게 쿠키를 전송하려면 쿠키에 서명을 추가해야 하고, 쿠키를 서명하는데 secret의 값이 필요하다.
+cookie-parser의 secret과 같게 설정하는 것이 좋다. 세션 쿠키의 이름은 name 옵션으로 설정한다. 기본 이름은 connect.sid 이다.
+cookie 옵션은 세션 쿠키에 대한 설정이다. maxAge, domain, path, expires, sameSite, httpOnly, secure등 일반적인 쿠키 옵션이 모두 제공된다.
+현재 httpOnly를 true로 설정해 클라이언트에서 쿠키를 확인하지 못하도록 했고, secure는 false로 해서 http가 아닌 환경에서도 사용할 수 있게 했다.
+배포시에는 https를 적용하고 secure도 true로 설정하는 것이 좋다.
+예제 코드에는 나와 있지 않지만 , store라는 옵션도 있다.
+현재는 메모리에 세션을 저장하도록 되어 있다.
+문제는 서버를 재시작하면 메모리가 초기화되어 세션이 모두 사라진다는 것이다.
+따라서 배포 시에는 store에 데이터베이스를 연결하여 세션을 유지하는 것이 좋다.
+보통 레디스가 자주 쓰인다ㅏ. 레디스의 사용 방법은 15.1.8절에서 설명한다.
+
+    req.session.name='Cottonwood';//세션등록
+    req.session.ID;//세션 아이디 확인
+    req.session.detory();//세션 모두 제거
+
+express-session 으로 만들어진 req.session 객체에 값을 개입하거나 삭제해서 세션을 변경할 수 있다.
+나중에 세션을 한 번에 삭제하려면 req.session.destory 메서드를 호출하면 된다.
+현재 세션의 아이디는 req.sessionID로 확인할 수 있다. 
+세션을 강제로 저장하기 위해 req.session.save 메서드가 존재하지만, 일반적으로 요청이 끝날 떄 자동으로 호출되므로 직접 save메서드를 호출할 일은 거의 없다.
+실제 로그인은 9.3절에서 하지만, 세션 쿠키의 모양이 조금 독특하니 미리 알아두면 좋다.
+express-session에서 서명한 쿠키 앞에는 s:이 붙는다.
+실제로는 encodedURIComponent 함수가 실행되어 value가 된다.
+value 부분이 실제 암호화된 쿠키 내용이다.
+앞에 s%3A 가 붙은 경우, 이 쿠키가 express-session 미들웨어에 의해 암호화된 것이라고 생각하면 된다.
