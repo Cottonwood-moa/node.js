@@ -308,3 +308,5 @@ express-session에서 서명한 쿠키 앞에는 s:이 붙는다.
 실제로는 encodedURIComponent 함수가 실행되어 value가 된다.
 value 부분이 실제 암호화된 쿠키 내용이다.
 앞에 s%3A 가 붙은 경우, 이 쿠키가 express-session 미들웨어에 의해 암호화된 것이라고 생각하면 된다.
+
+미들웨어 특성 활용하기
