@@ -310,3 +310,81 @@ value 부분이 실제 암호화된 쿠키 내용이다.
 앞에 s%3A 가 붙은 경우, 이 쿠키가 express-session 미들웨어에 의해 암호화된 것이라고 생각하면 된다.
 
 미들웨어 특성 활용하기
+미들웨어를 직접 만들어보기도 했고, 다른 사람이 만든 미들웨어 패키지를 설치해 장착해보기도 했다.
+이번 절에서 미들웨어의 특성을 총정리 해보자.
+
+    app.use((req,res,next=>{
+        console.log('모든 요청에 다 실행됩니다.');
+        next();
+    }));
+
+미들웨어는 req,res,next를 매개변수로 가지는 함수(에러 처리 미들웨어만 예외적으로 err,req,res,next를 가진다.)
+로서 app.use, app.get, app.post 등으로 장착한다. 특정한 주소의 요청에만 미들웨어가 실행되게 하려면 첫 번째 인수로 주소를 넣으면 된다.
+
+    app.use(
+        morgan('dev'),
+        express.static('/',path.join(__dirname, 'public')),
+        express.json(),
+        express.urlencoded({extended: false}),
+        cookieParser(process.env.COOKIE_SECRET),
+    )
+
+위와 같이 동시에 여러 개의 미들웨어를 장착할 수도 있으며, 다음 미들웨어로 넘어가려면 next함수를 호출해야 한다.
+위 미들웨어들은 내부적으로 next를 호출하고 있으므로 연달아 쓸 수 있다.
+next를 호출하지 않는 미들웨어는 res.send나 res.sendFile 등의 메서드로 응답을 보내야한다.
+express.static과 같은 미들웨어는 정적 파일을 제공할 때 next대신 res.sendFile 메서드로 응답을 보내야 한다. 
+따라서 정적 파일을 제공하는 경우 express.json, express.urlencoded, cookieParser 미들웨어는 실행되지 않는다.
+미들웨어 장착 순서에 따라 어떤 미들웨어는 실행되지 않을 수도 있다는 것을 기억해두자.
+만약 next도 호출하지 않고 응답도 보내지 않으면 클라이언트는 응답을 받지 못해 하염없이 기다리게 된다.
+
+image(그림판)
+
+지금까지는 next에 아무런 인수를 넣지 않았지만 next 함수에 인수를 넣을 수도 있다.
+단, 인수를 넣는다면 특수한 동작을 한다.
+route라는 문자열을 넣으면 다음 라우터의 메들웨어로 바로 이동하고 , 그 외의 인수를 넣는다면
+바로 에러 처리 미들웨어로 이동한다. 이때의 인수는 에러처리 미들웨어의 err 매개변수가 된다.
+라우터에서 에러가 발생할 때 에러를 next(err)을 통해 에러처리 미들웨어로 넘긴다.
+미들웨어 간에 데이터를 전달하는 방법도 있다.
+세션을 사용한다면 req.session 객체에 데이터를 넣어도 되지만, 세션이 유지되는 동안에 데이터도 계속 유지된다는 단점이 있다.
+만약 요청이 끝날 때까지만 데이터를 유지하고 싶다면 req 객체에 데이터를 넣어두면 된다.
+
+    app.use((req,res,next)=>{
+        req.data = '데이터 넣기';
+        next();
+    },(req,res,next)=>{
+        console.log(req.data);
+        next();
+    });
+
+현재 요청이 처리되는 동안 req.data를 통해 미들웨어 간에 데이터를 공유할 수 있다.
+새로운 요청이 오면 req.data는 초기화된다. 속성명이 꼭 data일 필요는 없지만 다른 미들웨어와 겹치지 않게 조심해야 한다.
+예를 들어 속성명을 body로 한다면 (req.body)body-parser 미들웨어와 기능이 겹치게 된다.
+
+    app.set과의 차이
+    app.set으로 익스프레서에서 데이터를 저장할 수 있다는 것을 배웠다.
+    app.get 또는 req.app.get 으로 어디서든지 데이터를 가져올 수 있다.
+    하지만 app.set을 사용하지 않고 req객체에 데이터를 넣어서 다음 미들웨어로 전달하는 이유가 있다.
+    app.set은 익스프레스에서 전역적으로 사용되므로 사용자 개개인의 값을 넣기에는 부적절하며 , 앱 전체의 설정을 공유할 때 사용하면 된다.
+    req 객체는 요청을 보낸 사용자 개개인에게 귀속되므로 req 객체를 통해 개인의 데이터를 전달하는 것이 좋다.
+
+미들웨어를 사용할 때 유용한 패턴 한 가지를 소개한다.
+미들웨어 안에 미들웨어를 넣는 방식이다. 다음 예제의 두 방식은 같은 기능을 한다.
+
+    app.use(morgan('dev'));
+    //또는
+    app.use((req,res,next)=>{
+        morgan('dev')(req,res,next);
+    });
+
+이 패턴이 유용한 이유는 기존 미들웨어의 기능을 확장할 수 있기 때문이다.
+예를 들어 다음과 같이 분기 처리를 할 수도 있다. 조건문에 따라 다른 미들웨어를 적용하는 코드이다.
+
+    app.use((req,res,next)=>{
+        if(process.env.NODE_ENV === 'production'){
+            morgan('combined')(req,res,next);
+        }else{
+            morgan('dev')(req,res,next);
+        }
+    });
+
+앞으로 살펴볼 예제에서 위와 같은 패턴을 사용하는 경우를 볼 수 있다.
