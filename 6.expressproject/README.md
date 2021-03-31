@@ -388,3 +388,75 @@ route라는 문자열을 넣으면 다음 라우터의 메들웨어로 바로 �
     });
 
 앞으로 살펴볼 예제에서 위와 같은 패턴을 사용하는 경우를 볼 수 있다.
+
+multer
+이번에는 사용하는 방법이 다소 어려운 미들웨어를 알아보자.
+이미지, 동영상 등을 비롯한 여러 가지 파일들을 멀티파트 형식으로 업로드할 때 사용하는 미들웨어이다.
+멀티파트 형식이란 enctype이 multipart/form-data 인 폼을 통해 업로드하는 데이터의 형식을 의미한다.
+
+멀티파트 형식으로 업로드하는 데이터는 개발자 도구 Network 탭에서 볼 수 있다.
+이러한 폼을 통해 업로드하는 파일은 body-parser로는 처리할 수 없고 직접 파싱(해석)하기도 어려우므로
+multer 라는 미들웨어를 따로 사용하면 편리하다. multer를 설치하자
+
+    npm i multer
+
+multer 패키지 안에는 여러 종류의 미들웨어가 들어 있다.
+미들웨어를 살펴보기 전에 기본적인 설정부터 알아보자.
+
+    const multer = require('multer');
+    const upload = multer({
+        storage:multer.diskStorage({
+            destination(req,file,done){
+                done(null,'uploads/');
+            },
+            filename(req,file,done){
+                const ext = path.extname(file.originalname);
+                done(null, paht.basename(file.originalname, ext)+ Date.now() + ext);
+            },
+        }),
+        limits:{fileSize:5 * 1024 * 1024},
+    });
+
+multer함수의 인수로 설정을 넣는다. storage 속성에는 어디에(destination)어떤 이름으로(filename)저장할지를 넣었다.
+destination 과 filename 함수의 req 매개변수에는 요청에 대한 정보가, file 객체에는 업로드한 파일에 대한 정보가 있다.
+done 매개변수는 함수이다. 첫 번째 인수에는 에러가 있다면 에러를 넣고, 두 번째 인수에는 실제 경로나 파일 이름을 넣어주면 된다.
+req나 file의 데이터를 가공해서 done으로 넘기는 형식이다.
+
+현재 설정으로는 uploads라는 폴더에 [파일명+현재시간.확장자]파일명으로 업로드하고 있다.
+현재 시간을 넣어주는 이유는 업로드하는 파일명이 겹치는 것을 막기 위해서이다.
+limits 속성에는 업로드에 대한 제한 사항을 설정할 수 있다.
+파일 사이즈(fileSize, 바이트 단위)는 5MB로 제한했다.
+다만 위 설정을 실제로 활용하기 위해서는 서버에 uploads 폴더가 꼭 존재해야 한다.
+없다면 직접 만들어주거나 다음과 같이 fs모듈을 사용해서 서버를 시작할 때 생성해야 한다.
+
+    const fs = requier('fs');
+
+    try{
+        fs.readdirSync('uploads');
+    }catch(error){
+        console.error('upload폴더가 없어 uploads 폴더를 생성합니다.');
+        fs.mkdirSync('uploads');
+    }
+
+설정이 끝나면 upload 변수가 생기는데, 여기에 다양한 종류의 미들웨어가 들어 있다.
+먼저 파일을 하나만 업로드 하는 경우 (multipart.html과 같은 경우)에는 single 미들웨어를 사용한다.
+
+    app.post('/upload', upload.single('image'),(req,res)=>{
+        console.log(req.file,req.body);
+        res.send('ok');
+    });
+
+single 미들웨어를 라우터 미들웨어 앞에 넣어두면, multer 설정에 따라 파일 업로드 후 req.file 객체가 생성된다. 인수는 input 태그의 name 이나 폼 데이터의 키와 일치하게 넣으면 된다.
+업로드 성공시 결과는 req.file 객체 안에 들어있다. req.body에는 파일이 아닌 데이터인 title이 들어 있다.
+
+여러 파일을 업로드하는 경우 HTML의 input 태그에는 multiple 을 쓰면 된다.
+미들웨어는 single 대신 array로 교체한다.
+
+   app.post('/upload', upload.array('many'),(req,res)=>{
+        console.log(req.file,req.body);
+        res.send('ok');
+    });
+업로드 결과도 req.file 대신 req.files 배열에 들어있다.
+파일을 여러 개 업로드하지만 input 태그나 폼 데이터의 키가 다른 경우에는 fields 미들웨어를 사용한다.
+
+Router 객체로 라우팅 분리하기
