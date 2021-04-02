@@ -460,3 +460,78 @@ single 미들웨어를 라우터 미들웨어 앞에 넣어두면, multer 설정
 파일을 여러 개 업로드하지만 input 태그나 폼 데이터의 키가 다른 경우에는 fields 미들웨어를 사용한다.
 
 Router 객체로 라우팅 분리하기
+4.2절에서 라우터를 만들 때는 요청 메서드와 주소별로 분기 처리를 하느라 코드가 매우 복잡했다.
+if 문으로 분기하고 코딩하여 보기에도 좋지 않고 확장하기도 어려웠다.
+익스프레스를 사용하는 이유 중 하나는 바로 라우팅을 깔끔하게 관리할 수 있다는 점이다.
+app.js 에서 app.get 같은 메서드가 라우터 부분이다.
+라우터를 많이 연결하면 app.js코드가 매우 길어지므로 익스프레스에서는 라우터를 분리할 수 있는 방법을 제공한다.
+routes 폴더를 만들고 그 안에 index.js 와 user.js 를 작성한다.
+
+    const express = require('express');
+
+    const router = express.Router();
+
+    //GET / 라우터
+    router.get('/',(req,res)=>{
+        res.send('Hello, Express');
+    });
+
+    module.exports = router;
+    
+    ㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡ
+    const express = require('express');
+
+    const router = express.Router();
+
+    //GET / 라우터
+    router.get('/',(req,res)=>{
+        res.send('Hello, user');
+    });
+
+    module.exports = router;
+
+만든 index.js 와 user.js를 app.use를 통해 app.js에 연결한다.
+또한, 에러 처리 미들웨어 위에 404 상태 코드를 응답하는 미들웨어를 하나 추가한다.
+
+    ...
+    const path = require('path');
+
+    dotenv.config();
+    const indexRouter=require('./routes');
+    const userRouter=require('./routes/user');
+    ...
+    name:'session-cookie'
+    }));
+
+    app.use('/',indexRouter);
+    app.use('/user',userRouter);
+
+    app.use((req,res,next)=>{
+        res.status(404).send('Not Found');
+    });
+    ...
+indexRouter를 ./router로 require할 수 있는 이유는 index.js는 생략할 수 있기 때문이다.
+require('./routes/index.js')와 require('./routes')는 같다.
+index.js와 user.js는 모양이 거의 비슷하지만, 다른 주소의 라우터 역할을 하고 있다.
+app.use로 연결할 때의 차이 때문이다.
+indexRouter는 app.use('/')에 연결했고, userRouter는 app.use('/user')에 연결했다.
+indexRouter는 use 의 '/'와 get의 '/'가 합쳐져 GET / 라우터 가 되었고
+userRouter는 use의 '/user'와 get의 '/'가 합쳐져 GET /user 라우터가 되었다.
+이렇게 app.use로 연결할 때 주소가 합쳐진다는 것은 염두에 두면 된다.
+서버를 실행한 뒤 localhost:3000과 localhost:3000/user로 접속하면 각각에 해당하는 응답을 받을 수 있다.
+
+이전 절에서 next 함수에 다음 라우터로 넘어가는 기능이 있다고 소개했다.
+바로 next('route')이며, 라우터에 연결된 나머지 미들웨어들을 건너뛰고 싶을 때 사용한다.
+
+    router.get('/', function(req,res,next){
+        next('route');
+    },function(req,res,next){
+        console.log('실행되지 않습니다.');
+        next();
+    });
+    router.get('/',function(req,res){
+        console.log('실행됩니다.');
+        res.send('Hello, Express);
+    });
+위 예제처럼 같은 주소의 라우터를 여러 개 만들어도 된다.
+라우터가 몇 개든 간에 next()를 호출하면 다음 미들웨어가 실행된다.
