@@ -6,8 +6,9 @@ version이나 description, author, license 는 원하는 대로 자유롭게 수
 
 scripts 부분에 start 속성은 잊지 말고 넣어줘야 한다.
 nodemon app을 하면 app.js 를 nodemon으로 실행한다는 뜻이다.
-서버 코드에 수정사항이 생길 때마다 매번 서버를 재시작 하기는 귀찮으므로 nodemon 모듈로 서버를 자동으로 재시작한다. 앞으로 서버 코드를 수정하면
-nodemon이 서버를 자동으로 재시작한다. nodemon이 실행되는 콘솔에 rs를 입력해서 수동으로 재시작할 수도 있다.
+서버 코드에 수정사항이 생길 때마다 매번 서버를 재시작 하기는 귀찮으므로 nodemon 모듈로 서버를 자동으로 재시작한다. 
+앞으로 서버 코드를 수정하면 nodemon이 서버를 자동으로 재시작한다. 
+nodemon이 실행되는 콘솔에 rs를 입력해서 수동으로 재시작할 수도 있다.
 
 nodemon은 개발용으로만 사용하는 것이다.
 배포 후에는 서버 코드가 빈번하게 변경될 일이 없으므로 nodemon을 사용하지 않아도 된다.
@@ -28,18 +29,21 @@ nodemon은 개발용으로만 사용하는 것이다.
 
 Express 모듈을 실행해 app 변수에 할당한다.
 익스프레스 내부에 http 모듈이 내장되어 있으므로 서버의 역할을 할 수 있다.
-app.set('port', 포트)로 서버가 실행될 포트를 설정한다. process.env 객체에 PORT속성이 있다면 그 값을 사용하고,
-없다면 기본값으로 3000번 포트를 이용하도록 되어 있다. 이렇게 app.set(키, 값)을 사용해서 데이터를 저장할 수 있다.
+app.set('port', 포트)로 서버가 실행될 포트를 설정한다. 
+process.env 객체에 PORT속성이 있다면 그 값을 사용하고,
+없다면 기본값으로 3000번 포트를 이용하도록 되어 있다. 
+이렇게 app.set(키, 값)을 사용해서 데이터를 저장할 수 있다.
 나중에 데이터를 app.get(키)로 가져올 수 있다.
 app.get(주소, 라우터)는 주소에 대한 GET 요청이 올 때 어떤 동작을 할지 적는 부분이다.
 매개변수 req는 요청에 관한 정보가 들어 있는 객체이고, res는 응답에 관한 정보가 들어 있는 객체이다.
-현재 GET / 요청 시 응답으로 Hello, Express 를 전송한다. 익스프레스에서는 res.write나 res.end 대신 res.send 를 사용한다.
+현재 GET / 요청 시 응답으로 Hello, Express 를 전송한다. 
+익스프레스에서는 res.write나 res.end 대신 res.send 를 사용한다.
 GET요청 외에도 POST, PUT, PATCH, DELETE, OPTIONS 에 대한 라우터를 위한 app.post, app.put, app.patch, app.delete, app.options 메서드가 존재한다.
 listen을 하는 부분은 http 웹 서버와 동일하다.
 4장에서 서버를 구동했던 것과 동일하게 포트를 연결하고 서버를 실행한다.
 포트는 app.get('post')로 가져왔다.
 
-단순한 문자열 대신 HTML로 응갑하고 싶다면 res.sendFile 메서드를 사용하면 된다.
+단순한 문자열 대신 HTML로 응답하고 싶다면 res.sendFile 메서드를 사용하면 된다.
 단, 파일의 경로를 path 모듈을 사용해서 지정해야 한다.
 
     <html>
