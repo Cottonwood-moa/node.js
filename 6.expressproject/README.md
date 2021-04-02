@@ -603,7 +603,7 @@ app.js에서 에러처리 미들웨어 위에 넣어둔 미들웨어는 일치�
 
 라우터에 대해서는 이 정도로만 알아보고 다음 절에서 req, res 객체를 알아보자.
 
-익스프레스의 req,res 겍체는 http 모듈의 req, res 객체를 확장한 것이다.
+익스프레스의 req,res 객체는 http 모듈의 req, res 객체를 확장한 것이다.
 기존 http 모듈의 메서드도 사용할 수 있고, 익스프레스가 추가한 메서드나 속성을 사용할 수도 있다.
 예를 들어 res.writeHead, res.write, res.end 메서드를 그대로 사용할 수 있으면서 res.send나 res.sendFile 같은 메서드도 쓸 수 있다.
 다만, 익스프레스의 메서드가 워낙 편리하기에 기존 http 모듈의 메서드는 잘 쓰이지 않는다.
@@ -642,4 +642,85 @@ req나 res 객체의 메서드는 다음과 같이 메서드 체이닝을 지원
     .redirect('/admin');
 
 템플릿 엔진 사용하기
+HTML을 사용해 본적이 있을것이다.
+HTML은 정적인 언어이다.
+주어진 기능만 사용할 수 있고, 사용자가 기능을 직접 추가할 수 없다.
+물론 자바스크립트가 없을 때의 이야기이다.
+HTML로 1,000개나 되는 데이터를 모두 표현하고 싶다면 일일이 직접 코딩해서 넣어야 한다.
+자바스크립트로 표현하면 반복문으로 간단하게 처리할 수 있는데 말이다.
+템플릿 엔진은 자바스크립트를 사용해서 HTML을 렌더링할 수 있게 한다.
+따라서 기존 HTML과는 문법이 살짝 다를 수도 있고, 자바스크립트 문법이 들어 있기도 하다.
+이번 절에서는 대표적인 템플릿 엔진인 퍼그와 넌적스를 살펴본다.
+앞으로의 예제는 넌적스를 사용한다.
 
+퍼그(제이드)
+예전 이름인 제이드로 더 유명한 퍼그는 꾸준한 인기를 얻고 있다.
+문법이 간단하므로 코드의 양이 줄어들기 때문이다.
+루비를 사용해봤다면 문법이 비슷해 금방 적용할 것이다.
+물론 문법이 쉬워서 루비를 모르는 사람도 빠르게 배울 수 있다.
+단, HTML과는 문법이 많이 달라 호불호가 갈린다.
+
+먼저 퍼그를 설치한다.
+
+    npm i pug
+
+익스프레스와 연결하려면 app.js에 다음 부분이 들어 있어야 한다.
+    app.set('views', path.join(__dirname, 'views'));
+    app.set('view engine','pug');
+
+views는 템플릿 파일들이 위치한 폴더를 지정하는 것이다.
+res.render 메서드가 이 폴더 기준으로 템플릿 엔진을 찾아서 렌더링 한다.
+res.render('index')라면 view/index.pug 를 렌더링 한다.
+res.render('admin/main')이라면 views/admin/main.pug 를 렌더링 한다.
+view engine은 어떠한 종류의 템플릿 엔진을 사용할지를 나타낸다.
+현재 pug로 설정되어 있으므로 그대로 사용하면 된다.
+
+넌적스
+넌적스는 퍼그의 HTML 문법 변화에 적응하기 힘든 사람에게 적합한 템플릿 엔진이며,파이어폭스를 만든 모질라에서 만들었다.
+HTML 문법을 그대로 사용하되 추가로 자바스크립트 문법을 사용할 수 있고, 파이썬 템플릿 엔진인 Twig와 문법이 상당히 유사하다.
+
+    npm i nunjucks
+
+view engine을 퍼그 대신 넌적스로 교체한다.
+
+    const nunjucks = require('nunjucks');
+    
+    app.set('view engine','html');
+    nunjucks.configure('views',{
+        express:app,
+        watch:true,
+    });
+
+퍼그와는 연결 방법이 다소 다르다.
+configure의 첫 번째 인수로 views 폴더의 경로를 넣고, 두 번쨰 인수로 옵션을 넣는다.
+이때 express 속성에 app 객체를 연결한다.
+watch 옵션이 true 이면 HTML 파일이 변결될 때 템플릿 엔진을 다시 렌더링 한다.
+파일은 퍼그와 같은 특수한 확장자 대신 html을 그대로 사용해도 된다.
+넌적스임을 구분하려면 확장자로 njk를 쓰면 된다.
+단, 이때는 view engine 도 njk로 바꿔야 한다.
+
+views 폴더에 layout.html, index.html, error.html 파일
+
+이제 404 응답 미들웨어와 에러 처리 미들웨어를 다음과 같이 수정하여 에러 발생 시 error.html에 에러 내용을 표시한다.
+
+    app.use((req, res, next) => {
+        const error =  new Error(`${req.method} ${req.url} 라우터가 없습니다.`);
+        error.status = 404;
+        next(error);
+    });
+    
+    app.use((err, req, res, next) => {
+        res.locals.message = err.message;
+        res.locals.error = process.env.NODE_ENV !== 'production' ? err : {};
+        res.status(err.status || 500);
+        res.render('error');
+    });
+
+만약 404 에러가 발생한다면 res.locals.message는 `${req.method} ${req.url} 라우터가 없습니다.` 가 된다.
+next(error)에서 넘겨준 인수가 에러 처리 미들웨어의 err로 연결되기 때문이다.
+에러 처리 미들웨어는 error 라는 템플릿 파일(너적스이므로 error.html 파일)을 렌더링한다.
+렌더링 시 res.locals.message와 res.locals.error에 넣어준 값을 함께 렌더링한다.
+render에 변수를 대입하는 것 외에도, 이렇게 res.locals 속성에 값을 대입하여 템플릿 엔진에 변수를 주입할 수 있다.
+error 객체의 스택 트레이스는 시스템 환경이 배포 환경이 아닌 경우에만 표시된다.
+배포 환경인 경우에는에러 메시지만 표시된다.
+에러 스택 트레이스가 노출되면 보안에 취약할 수 있기 때문이다.
