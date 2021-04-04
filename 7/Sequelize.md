@@ -50,3 +50,68 @@ config/config.json 에서 데이터베이스 설정을 볼러온 후 new Sequeli
 연결 객체를 나중에 재사용하기 위해 db.sequelize에 넣어두었다.
 
 MySQL 연결하기
+이제 시퀄라이즈를 통해 익스프레스 앱과 MySQL을 연결해야 한다.
+app.js 를 생성하고 익스프레스와 시퀄라이즈 연결 코드를 작성해보자.
+
+    app.js
+
+require('./models')는 require('./models/index.js')와 같다.
+폴더 내의 index.js 파일은 require시 이름을 생략할 수 있다.
+db.sequelize를 불러와서 sync 메서드를 사용해 서버 실행 시 MySQL과 연동되도록 했다.
+내부에 force:false 옵션이 있는데, 이 옵션을 true로 설정하면 서버 실행 시마다 테이블을 재생성한다.
+테이블을 잘못 만든 경우에 true로 설정하면 된다.
+MySQL과 연동할 떄는 config 폴더 안의 config.json 정보가 사용된다.
+다음과 같이 수정한다.
+자동 생성한 config.json 에 operatorAliases 속성이 들어 있다면 삭제한다.
+
+    config.json
+
+develoment.password와 develoment.database를 현재 MySQL 커넥션과 일치하게 수정하면 된다.
+test와 production 쪽은 각각 테스트 용도와 배포 용도로 접속하기 위해 사용되는 것이므로 여기서는 설정하지 않는다.
+
+password 속성에는 MySQL 비밀번호를 입력하고 , database 속성에는 nodejs 를 입력한다.
+이 설정은 process.env.NODE_ENV 가 develoment 일 때 적용된다. (기본적으로 develoment이다.)
+나중에 배포할 때는 process.env.NODE_ENV 를 production 으로 설정해둔다.
+따라서 배포 환경을 위해 데이터베이스를 설정할 때는 config/config.json의 production 속성을 수정하면 된다.
+마찬가지로 테스트 환경(process.env.NODE_ENV가 test)일 때는 test 속성을 수정한다.
+
+npm start 로 서버를 실행하면 3001번 포트에서 서버가 돌아간다.
+라우터를 만들지 않았기에 실제로 접속할 수는 없지만 다음과 같은 로그가 뜬다.
+
+    3001 번 포트에서 대기 중
+    Executing (default): SELECT 1+1 AS result
+    데이터베이스 연결 성공
+
+이런 로그가 뜨면 성공이다.
+연결에 실패한 경우 에러 메시지가 로깅된다.
+에러는 주로 MySQL 데이터베이스를 실행하지 않았거나, 비밀번호가 틀렸거나, 설정 파일을 잘못 불러왔을 때 발생한다.
+
+모델 정의하기 
+이제 MySQL에서 정의한 테이블을 시퀄라이즈에서도 정의해야 한다.
+MySQL의 테이블은 시퀄라이즈의 모델과 대응된다.
+시퀄라이즈는 모델과 MySQL의 테이블을 연결해주는 역할을 한다.
+User 와 Comment 모델을 만들어 users 테이블과 comments 테이블을 연결해보자.
+시퀄라이즈는 기본적으로 모델 이름은 단수형으로, 테이블 이름은 복수형으로 사용한다.
+
+    user.js
+
+User 모델을 만들고 모듈로 exports 했다.
+User 모델은 Sequelize.Model 을 확장한 클래스로 선언한다.
+클래스 문법을 사용하지만 클래스에 대한 지식이 없어도 사용할 수 있다.
+패턴만 숙지하면 된다.
+모델은 크케 static init 메서드와 static associate 메서드로 나뉜다.
+init 메서드에는 테이블에 대한 설정을 하고, associate 메서드에는 다른 모델과의 관계를 적는다.
+init 메서드부터 살펴보자.
+super.init 메서드의 첫 번째 인수가 테이블 컬럼에 대한 설정이고, 두 번째 인수가 테이블 자체에 대한 설정이다.
+시퀄라이즈는 알아서 id를 기본 키로 연결하므로 id 컬럼은 적어줄 필요가 없다.
+나머지 컬럼의 스펙을 입력한다. 
+MySQL 테이블과 컬럼 내용이 일치해야 정확하게 대응된다.
+단, 시퀄라이즈 자료형은 MySQl 의 자료형과는 조금 다르다.
+VARVHAR 은 STRING 으로 , INT 는 INTEGER 로 , TINYINT 는 BOOLEAN으로 DATETIME 은 DATE로 적는다
+INTEGER,UNSIGNED는 UNSIGNED 옵션이 적용된 INT를 의미한다.
+여기에 ZEROFILL 옵션도 사용하고싶담면 INTEGER.UNSIGNED.ZEROFILL을 적는다.
+allowNull 은 NOT NULL 옵션과 동일하다.
+unique 는 UNIQUE 옵션이다.
+defaultValue는 기본값(DEFAULT)를 의미한다.
+Sequelize.NOW로 현재 시간을 기본값으로 사용할 수 있다.
+SQL의 now()와 같다.
