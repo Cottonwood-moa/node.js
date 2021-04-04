@@ -115,3 +115,33 @@ unique 는 UNIQUE 옵션이다.
 defaultValue는 기본값(DEFAULT)를 의미한다.
 Sequelize.NOW로 현재 시간을 기본값으로 사용할 수 있다.
 SQL의 now()와 같다.
+
+    MySQL           시퀄라이즈
+    VARCHAR(100)    STRING(100)
+    INT             INTEGER
+    TINYINT         BOOLEAN
+    DATETIME        DATE
+    INT UNSIGNED    INTEGER.UNSIGNED
+    NOT NULL        allowNull: false
+    UNIQUE          unique: true
+    DEFAULT now()   defaultValue: Sequelize.NOW
+
+super.init 메서드의 두 번째 인수는 테이블 옵션이다.
+sequelize: static init 메서드의 매개변수와 연결되는 옵션으로 db.sequelize 객체를 넣어야 한다. 나중에 model/index.js에서 연결한다.
+timestamps: 현재 false로 되어 있으며, 이 속성 값이 true면 시퀄라이즈는 createdAt과 updateAt 컬럼을 추가한다.
+각각 로우가 생성될 때와 수정될 때의 시간이 자동으로 입력된다.
+하지만 예제에서는 직접 created_at 컬럼을 만들었으므로 timestamps 속성이 필요없다.
+따라서 속성값을 false로 하여 자동으로 날짜 컬럼을 추가하는 기능을 해제했다.
+underscored: 시퀄라이즈는 기본적으로 테이블명과 컬럼명을 캐멀 케이스로 만든다.
+이를 스네이크케이스로 바꾸는 옵션이다.
+modelName: 모델 이름을 설정할 수 있다. 노드 프로젝트에서 사용한다.
+tableName: 실제 데이터베이스의 테이블 이름이 된다. 기본적으로는 모델 이름을 소문자 및 복수형으로 만든다. 모델 이름이 User 라면 테이블 이름은 users가 된다.
+paranod: ture로 설정하면 deleteAt 이라는 컬럼이 생긴다.
+로우를 삭제할 때 완전히 지워지지 않고 deletedAt에 지운 시각이 기록된다.
+로우를 조회하는 명령을 내렸을 때는 deletedAt의 값이 null인 로우(삭제되지않았다는뜻)를 조회한다.
+이렇게 하는 이유는 나중에 로우를 복원하기 위해서다.
+로우를 복원해야 하는 상황이 생길 것 같다면 미리 true로 설정해두자.
+charset과 collate: 각각 utf8과 utf8_genetal_ci 로 설정해야 한글이 입력된다.
+이모티콘까지 입력할 수 있게 하고 싶다면 utf8mb4와 utf8mb4_general_ci를 입력한다.
+
+Comment 모델도 만들어보자.
