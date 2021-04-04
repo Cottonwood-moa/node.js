@@ -264,3 +264,96 @@ N:M에서는 데이터를 조회할 때 여러 단계를 거쳐야 한다.
 
 다음 절에서는 모델들을 사용해서 CRUD 작업을 진행하여 보자.
 
+쿼리알아보기
+시퀄라이즈로 CRUD 작업을 하려면 먼저 시퀄라이즈 쿼리를 알아야 한다.
+SQL 문을 자바스크립트로 생성하는 것이라 시퀄라이즈만의 방식이 있다.
+7.5절의 SQL 문에 상응하는 옵션들이다.
+쿼리는 프로미스를 반환하므로 then을 붙여 결괏값을 받을 수 있다.
+async/await 문법과 같이 사용할 수도 있다.
+로우를 생성하는 쿼리부터 알아보자.
+첫 줄이 SQL 문이고, 그 아래는 시퀄라이즈 쿼리이다.
+
+    INSERT INTO nodejs.users (name, age, married, comment) VALUES ('Cottonwood', 27, 0, '자기소개1');
+    const {User} = require('../models);
+    User.create({
+        name:'Cottonwood',
+        age:27,
+        married:false,
+        comment:'자기소개1',
+    });
+
+models 모듈에서 User 모델을 불러와 create 메서드를 사용하면 된다.
+앞으로 나오는 모든 메서드는 User 모델을 불러왔다는 전제하에 소개한다.
+
+한 가지 주의할 점은 데이터를 넣을 때 MySQL의 자료형이 아니라 시퀄라이즈 모델에 정의한 자료형대로 넣어야 한다는 것이다.
+이것이 married가 0이 아니라 false인 이유이다.
+시퀄라이즈가 알아서 MySQL 자료형으로 바꾼다.
+자료형이나 옵션이 부합하지 않는 데이터를 넣었을때는 시퀄라이즈가 에러를 발생시킨다.
+이번에는 로우를 조회하는 쿼리들이다.
+다음은 users 테이블의 모든 데이터를 조회하는 SQL 문이다.
+findAll 메서드를 사용하면 된다.
+
+    SELECT * FROM nodejs.users;
+    User.findAll({});
+
+다음은 User 테이블의 데이터 하나만 가져오는 SQL 문이다.
+앞으로 데이터를 하나만 가져올 때는 findOne 메서드를, 여러 개를 가져올 때는 findAll 메서드를 사용한다고 생각하면 된다.
+
+    SELECT * FROM nodejs.users LIMIT 1;
+    User.findOne({});
+
+attributes 옵션을 사용해서 원하는 컬럼만 가져올 수도 있다.
+
+    SELECT name, married FROM nodejs.users;
+    User.findAll({
+        attributes:['name', 'married'],
+    });
+
+where 옵션이 조건들을 나열하는 옵션이다.
+
+    SELECT name, age FROM nodejs.users WHERE married = 1 AND age > 30;
+    const{Op} = require('sequelize');
+    const {User} = require('../models');
+    User.findAll({
+        attributes:['name','age'],
+        where:{
+            married:true,
+            age:{[Op.gt]:30},
+        },
+    });
+
+MySQL에서는 undefined라는 자료형을 지원하지 않으므로 where 옵션에는 undefined가 들어가면 안된다.
+빈 값을 넣고자 하면 null을 대신 사용하자.
+age 부분이 특이하다.
+시퀄라이즈는 자바스크립트 객체를 사용해서 쿼리를 생성해야 하므로 Op.gt 같은 특수한 연산자들이 사용된다.
+Sequelize 객체 내부의 Op 객체를 불러와 사용한다.
+{[Op.gt]:30}은 ES2015 문법이니 2.1.3절을 참고하자.
+자주 쓰이는 연산자로는 Op.gt(초과), Op.gte(이상), Op.lt(미만), Op.lte(이하),Op.ne(같지 않음), Op.or(또는), Op.in(배열 요소 중 하나), Op.notIn(배열 요소와 모두 다름) 등이 있다.
+Op.or을 한번 사용해보자.
+
+    SELECT id, name FROM users WHERE married = 0 OR age > 30;
+    const {Op}=require('sequelize');
+    const {User}= require('../models');
+    User.findAll({
+        attributes:['id','name'],
+        where:{
+            [Op.or]:[{married:false}, {age:{[Op.gt]:30}}],
+        },
+    });
+
+Op.or 속성에 OR 연산을 적용할 쿼리들을 배열로 나열하면 된다.
+
+    SELECT id, name FROM users ORDER BY age DESC;
+    User.findAll({
+        attributes:['id', 'name'],
+        order:[['age','DESC']],
+    });
+
+시퀄라이즈의 정렬 방식이며, order 옵션으로 가능하다.
+배열 안에 있다는 점에 주의하자.
+정렬은 꼭 컬럼 하나로 하는 게 아니라 컬럼 두 개 이상으로 할 수도 있기 때문이다.
+
+다음은 조회할 로우 개수를 설정하는 방법이다.
+LIMIT 1인 경우에는 findAll 대신 findOne 메서드를 사용해도 되지만, 다음과 같이 limit 옵션으로 할 수도 있다.
+
+
