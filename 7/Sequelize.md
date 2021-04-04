@@ -356,4 +356,43 @@ Op.or 속성에 OR 연산을 적용할 쿼리들을 배열로 나열하면 된�
 다음은 조회할 로우 개수를 설정하는 방법이다.
 LIMIT 1인 경우에는 findAll 대신 findOne 메서드를 사용해도 되지만, 다음과 같이 limit 옵션으로 할 수도 있다.
 
+    SELECT id, name FROM users ORDER BY age DESC LIMIT 1;
+    User.findAll({
+        attributes:['id','name'],
+        order:[['age','DESC']],
+        limit:1,
+    });
+
+limit 옵션으로 가능하다.
+OFFSET 역시 offset 속성으로 구현할 수 있다.
+
+   SELECT id, name FROM users ORDER BY age DESC LIMIT 1 OFFSET 1;
+    User.findAll({
+        attributes:['id','name'],
+        order:[['age','DESC']],
+        limit:1,
+        offset:1,
+    });
+
+이번에는 로우를 수정하는 쿼리이다.
+
+    UPDATE nodejs.users SET comment = '바꿀 내용' WHERE id =2 ;
+    User.update({
+        comment:'바꿀 내용',
+    },{
+        where:{id:2},
+    });
+update 메서드로 수정할 수 있다.
+첫 번째 인수는 수정할 내용이고, 두 번째 인수는 어떤 로우를 수정할지에 대한 조건이다.
+where 옵션에 조건들을 적는다.
+로우를 삭제하는 쿼리는 다음과 같다.
+
+    DELETE FROM nodejs.users WHERE id = 2;
+    User.destroy({
+        where: {id:2},
+    });
+
+destory 메서드로 삭제한다.
+where 옵션에 조건들을 적는다.
+
 
