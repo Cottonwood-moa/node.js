@@ -174,3 +174,93 @@ init이 실행되어야 테이블이 모델로 연결된다.
 이제 users 테이블과 comments 테이블 간의 관계를 설정해보자.
 
 관계 정의하기
+이 절에서는 users 테이블과 comments 테이블 간의 관계를 정의해보자.
+사용자 한 명은 댓글을 여러 개 작성할 수 있다.
+하지만 댓글 하나에 사용자가 여러 명일 수는 없다.
+이러한 관계를 일대다 관계라고 한다. 1:N 관계에서는 사용자가 1 이고, 댓글이 N이다.
+다른 관계로 일대일, 다대다 관계가 있다.
+일대일 관계로는 사용자와 사용자에 대한 정보 테이블을 예로 들수 있다.
+사용자 한 명은 자신의 정보를 담고 있는 테이블과만 관계가 있다.
+정보 테이블도 단 한 사람만을 가리킨다.
+이러한 관계를 일대일 관계라고 부른다.
+다대다 관계로는 게시글 테이블과 해시태그 테이블관계를 예로 들 수 있다.
+한 게시글에는 해시태그가 여러 개 달릴 수 있고, 한 해시태그도 여러 게시글에 달릴 수 있다.
+이러한 관계를 다대다 관계라고 한다.
+MySQL에서는 JSON이라는 기능으로 여러 테이블 간의 관계를 파악해 결과를 도출한다.
+시퀄라이즈는 JSON기능도 알아서 구현한다.
+대신 테이블간에 어떠한 관계가 있는지 시퀄라이즈에 알려야 한다.
+
+1:N
+시퀄라이즈에서는 1:N 관계를 hasMany라는 메서드로 표현한다.
+users 테이블의 로우 하나를 불러올 때 연결된 comments 테이블의 로우들도 같이 불러올 수 있다.
+반대로 belongTo 메서드도 있다.
+comments 테이블의 로우를 불러올 때 연결된 users 테이블의 로우를 가져올 수 있다.
+모델 각각의 static associate 메서드에 넣는다.
+
+    static associate(db) {
+        db.User.hasMany(db.Comment, {foreignKey: 'commenter', sourceKey:'id'});
+    }
+
+    static associate(db) {
+        db.Comment.belongsTo(db.User, {foreignKey:'commenter', targetKey:'id'});
+        }
+
+어떤 모델에 hasMany를 쓰고, 어떤 모델에 belongsTo를 쓰는지 헷갈릴 것이다.
+다른 모델의 정보가 들어가는 테이블에 belongsTo 를 사용한다.
+예제에서는 commenter 컬럼이 추가되는 Comment 모델에 belongsTo를 사용하면 된다.
+사용자는 한 명이고, 그에 속한 댓글은 여러 개이므로 댓글 로우에 사용자가 누구인지 적어야 한다.
+시퀄라이즈는 위에서 정의한 대로 모델 간 관계를 파악해서 Comment 모델에 foreignKey인 commenter 컬럼을 추가한다.
+Commenter 모델의 외래 키 컬럼은 commenter고, User 모델의 id 컬럼을 가리키고 있다.
+hamMany 메서드에서는 souceKey 속성에 id 를 넣고, belongsTo 메서드에서는 targetKey 속성에 id를 넣는다.
+sourceKey의 id 와 targetKey의 id 모두 User 모델의 id 이다.
+hasMany에서는 sourceKey를 쓰고 belongsTo에서는 targetKey를 쓴다고 생각하면 된다.
+foreignKey를 따로 지정하지 않는다면 이름이 모델명+ 기본 키인 컬럼이 모델에 생성된다.
+예를들어 commenter를 foreignKey로 직접 넣어주지 않았따면 user(모델명)+기본키(id)가 합쳐진 UserId가 foreignKey로 생성된다.
+
+npm start 명령어로 서버를 시작하고 나서 콘솔을 보면 다음과 같은 메시지가 나온다.
+시퀄라이즈가 스스로 실행하는 SQL 문이다.
+
+    Executing (default): CREATE TABLE IF NOT EXISTS `users` (`id` INTEGER NOT NULL auto_increment , `name` VARCHAR(20) NOT NULL UNIQUE, `age` INTEGER UNSIGNED NOT NULL, `married` TINYINT(1) NOT NULL, `comment` TEXT, `created_at` DATETIME 
+    NOT NULL, PRIMARY KEY (`id`)) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE utf8_general_ci;
+    Executing (default): SHOW INDEX FROM `users` FROM `nodejs`
+    Executing (default): CREATE TABLE IF NOT EXISTS `comments` (`id` INTEGER NOT NULL auto_increment , `comment` VARCHAR(100) NOT NULL, `created_at` DATETIME, `commenter` INTEGER, PRIMARY KEY (`id`), FOREIGN KEY (`commenter`) REFERENCES `users` (`id`) ON DELETE SET NULL ON UPDATE CASCADE) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE utf8mb4_general_ci;
+    Executing (default): SHOW INDEX FROM `comments` FROM `nodejs`
+
+시퀄라이즈는 워크벤치가 테이블을 만들 때 실행했던 구문과 비슷한 SQL 문을 만든다.
+CREATE TABLE 뒤에 IF NOT EXISTS 라고 되어 있는데, 이 부분은 테이블이 존재하지 않을 경우에 실행된다는 뜻이다.
+이미 워크벤치 또는 콘솔로 테이블을 만들어두었으므로 구문은 실행되지 않는다.
+대신 실수로 테이블을 삭제했을 때는 위의 구문으로 인해 다시 테이블이 생성된다.
+예제에는 사용되지 않았지만 1:1관계와 N:M 관계도 알아보자.
+
+ 1:1
+ 1:1 관계에서는 hasMany 메서드 대신 hasOne메서드를 사용한다.
+ 사용자 정보를 담고 있는 가상의 Info 모델이 있다고 하면 다음과 같이 표현할 수 있다.
+
+    db.User.hasOne(db.Info, {foreignKey: 'UserId', sourceKey:'id'});
+    db.User.belongsTo(db.User, {foreignKey: 'UserId', targetKey:'id'});
+
+1:1관계라고 해도 belongsTo와 hasOne이 반대면 안된다.
+belongsTo를 사용하는 Info 모델에 UserId 컬럼이 추가되기 때문이다.
+
+N:M
+시퀄라이즈에서는 N:M 관계를 표현하기 위한 belongsToMany 메서드가 있다.
+게시글 정보를 담고 있는 가상의 Post 모델과 해시태그 정보를 담고 있는 가상의 Hashtag 모델이 있다고 하면 다음과 같이 표현할 수 있다.
+
+    db.Post.belongsToMany(db.Hashtag, {through: 'PostHashtag'});
+    db.Hashtag.belongsToMany(db.Post, {through: 'PostHashtag'});
+
+양쪽 모델에 모두 belongsToMany 메서드를 사용한다.
+N:M 관계의 특성상 새로운 모델이 생성된다.
+through 속성에 그 이름을 적으면 된다.
+새로 생성된 PostHashtag 모델에는 게시글과 해시태그의 아이디가 저장된다.
+9장의 예제에서 N:M 관계를 사용하는 것을 볼 수 있다.
+
+N:M에서는 데이터를 조회할 때 여러 단계를 거쳐야 한다.
+#노드 해시태그를 사용한 게시물을 조회하는 경우를 생각해보자.
+먼저 #노드 해시태그를 Hashtag 모델에서 조회하고, 가져온 태그의 아이디(1)를 바탕으로 PostHashtag 모델에서 hashtagId가 1인 postId들을 찾아 Post모델에서 정보를 가져온다.
+자동으로 만들어진 모델들도 다음과 같이 접근할 수 있다.
+
+    db.sequelize.models.PostHashtag
+
+다음 절에서는 모델들을 사용해서 CRUD 작업을 진행하여 보자.
+
