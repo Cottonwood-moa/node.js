@@ -145,3 +145,32 @@ charset과 collate: 각각 utf8과 utf8_genetal_ci 로 설정해야 한글이 �
 이모티콘까지 입력할 수 있게 하고 싶다면 utf8mb4와 utf8mb4_general_ci를 입력한다.
 
 Comment 모델도 만들어보자.
+
+    comment.js
+
+Comment 모델이 좀 이상하다.
+users 테이블과 연결된 commenter 컬럼이 없다.
+이 부분은 모델을 정의할 때 넣어도 되지만, 시퀄라이즈 자체에서 관계를 따로 정의할 수 있다.
+이는 조금 뒤에 알아보자.
+모델을 생성했다면 models/index.js와 연결한다.
+
+    const User = require('./user');
+    const Comment = require('./comment');
+
+    db.User = User;
+    db.Comment = Comment;
+
+    User.init(sequelize);
+    Comment.init(sequelize);
+
+    User.associate(db);
+    Comment.associate(db);
+
+db라는 객체에 User와 Comment 모델을 담아두었다.
+앞으로 db 객체를 require하여 User와 Comment 모델에 접근할 수 있다.
+User.init과 Comment.init 은 각각의 모델의 static.init 메서드를 호출하는 것이다.
+init이 실행되어야 테이블이 모델로 연결된다.
+다른 테이블과의 관계를 연결하는 associate 메서드도 미리 실행해둔다.
+이제 users 테이블과 comments 테이블 간의 관계를 설정해보자.
+
+관계 정의하기
