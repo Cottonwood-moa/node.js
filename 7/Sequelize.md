@@ -487,4 +487,36 @@ SQL 쿼리하기
 조금 전에 배웠던 쿼리로 CRUD 작업을 해보자.
 모델에서 데이터를 받아 페이지를 렌더링하는 방법과 JSON 형식으로 데이터를 가져오는 방법을 알아보자.
 
+간단하게 사용자 정보를 등록하고, 사용자가 등록한 댓글을 가져오는 서버이다.
+먼저 가음과 같이 views 폴더를 만들고 그 안에 sequelize.html 파일과 error.html 파일을 만든다.
+4.2절의 restFront.html 처럼 AJAX를 사용해 서버와 통신한다.
+
+    sequelize.html
+    error.html
+
+public 폴더안에 sepuelize.js 파일도 만들어준다. (sequelize.html과 연결)
+
+    sepuelize.js
+
+HTML 쪽보다는 서버 코드 위주로 보면 된다.
+script 태그에는 버튼들을 눌렀을 때 서버의 라우터로 AJAX 요청을 보내는 코드가 들어 있다.
+조금 뒤에 만들 라우터들을 미리 app.js에 연결하자.
+
+    ...
+    const { sequelize } = require('./models');
+    const indexRouter = require('./routes');
+    const usersRouter = require('./routes/users');
+    const commentsRouter = require('./routes/comments');
+    ...
+    app.use(express.urlencoded({ extended: false }));
+
+    app.use('/', indexRouter);
+    app.use('/users', usersRouter);
+    app.use('/comments', commentRouter);
+    ...
+
+라우터의 내용은 다음과 같다.
+sequelize.js 에 나오는 GET, POST, PUT, DELETE 요청에 해당하는 라우터를 만든다.
+routes 폴더를 만들고 그 안에 index.js 를 작성하면 된다.
+
 

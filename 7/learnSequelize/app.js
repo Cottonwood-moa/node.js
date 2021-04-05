@@ -4,7 +4,11 @@ const morgan = require('morgan');
 const nunjucks = require('nunjucks');
 
 const { sequelize } = require('./models');
-
+//라우터
+const indexRouter = require('./routes');
+const usersRouter = require('./routes/users');
+const commentsRouter = require('./routes/comments');
+//
 const app = express();
 app.set('port', process.env.PORT || 3001);
 app.set('view engine', 'html');
@@ -25,6 +29,12 @@ app.use(morgan('dev'));
 app.use(express.static(path.join(__dirname, 'public')));
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
+
+//라우터
+app.use('/', indexRouter);
+app.use('/users', usersRouter);
+app.use('/comments', commentRouter);
+//
 
 
 app.use((req, res, next) => {
