@@ -408,3 +408,69 @@ MySQL 로 따지면 JOIN 기능이다.
 현재 User 모델은 Comment 모델과 hasMany-belongsTo 관계가 맺어져있다.
 만약 특정 사용자를 가져오면서 그 사람의 댓글까지 모두 가져오고 싶다면 include 속성을 사용한다.
 
+    const user = await User.findOne({
+        include:[{
+            model:Comment,
+        }]
+    });
+    console.log(user.Comments); //사용자 댓글
+
+어떤 모델과 관계가 있는지를 include 배열에 넣어주면 된다.
+배열인 이유는 다양한 모델과 관계가 있을 수 있기 때문이다.
+댓글은 여러 개일 수 있으므로 (hasMany)user.Comments 로 접근 가능하다.
+또는 다음과 같이 댓글에 접근할 수도 있다.
+
+    const user = await User.findOne({});
+    const comments = await user.getComments();
+    console.log(comments); //사용자 댓글
+
+관계를 설정했다면 getComments(조회) 외에도 setComments(수정), addComment(하나 생성), addComments(여 러개 생성), removeComments(삭제) 메서드를 지원한다.
+동사 뒤에 모델의 이름이 붙는 형식이다.
+
+동사 뒤의 모델 이름을 바꾸고 싶다면 관계 설정 시 as 옵션을 사용할 수 있다.
+
+    //관계를 설정할 때 as 로 등록
+    db.User.hasMany(db.Comment, {foreignKey : 'commenter', souceKey:'id', as:'Answers'});
+    //쿼리할 때는
+    const user = await User.findOne({});
+    const comments = await user.getAnswers();
+    console.log(comments); //사용자 댓글
+
+as 를 설정하면 include 시 추가되는 댓글 객체도 user.Answers 로 바뀐다.
+include 나 관계 쿼리 메서드에서도 where나 attributes 같은 옵션을 사용할 수 있다.
+
+    const user = await User.findOne({
+        include:[{
+            model: Comment,
+            where:{
+                id:1,
+            },
+        attributes:['id'],
+        }]
+    });
+    //or
+    const comments = await user.getCommnets({
+        where:{
+            id:1,
+        },
+        attributes:['id'],
+    });
+
+댓글을 가져올 때는 id 가 1인 댓글만 가져오고, 컬럼도 id 컬럼만 가져오도록 하고 있다.
+관계 쿼리 시 조회는 위와 같이 하지만 수정, 생성,삭제 때는 조금 다른 점이 있다.
+
+    const user = await User.findOne({});
+    const comment = await Comment.create();
+    await user.addComment(comment);
+    //or
+    await user.addComment(comment.id);
+
+여러 개를 추가할 때는 배열로 추가할 수 있다.
+
+    const user = await User.findOne({});
+    const comment1 = await Comment.create();
+    const comment2 = await Comment.create();
+    await = user.addComment([comment1, comment2]);
+
+관계 쿼리 메서드의 인수로 추가할 댓글 모델을 넣거나 댓글의 아이디를 넣으면 된다.
+수정이나 삭제도 마찬가지다.
