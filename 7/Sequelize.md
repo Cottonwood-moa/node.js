@@ -519,4 +519,57 @@ script 태그에는 버튼들을 눌렀을 때 서버의 라우터로 AJAX 요�
 sequelize.js 에 나오는 GET, POST, PUT, DELETE 요청에 해당하는 라우터를 만든다.
 routes 폴더를 만들고 그 안에 index.js 를 작성하면 된다.
 
+    index.js
+
+먼저 GET / 로 접속했을 때의 라우터이다.
+User.findAll 메서드로 모든 사용자를 찾은 후, sequelize.html을 렌더링할 때 결괏값인 users를 넣는다.
+
+시퀄라이즈는 프로미스를 기본적으로 지원하므로 async/await 와 try/catch 문을 사용해서 각각 조회 성공 시와 실패 시의 정보를 얻을 수 있다.
+이렇게 미리 데이터베이스에서 데이터를 조회한 후 템플릿 렌더링에 사용할 수 있다.
+
+다음은 users.js 이다.
+router.route 메서드로 같은 라우트 경로는 하나로 묶었다.
+
+    users.js
+
+GET /users와 POST /users 주소로 요청이 들어올 때의 라우터이다.
+각각 사용자를 조회하는 요청과 사용자를 등록하는 요청을 처리한다.
+GET /에서도 사용자 데이터를 조회했지만, GET /users 에서는 데이터를 JSON 형식으로 반환한다는 것에 차이가 있다.
+
+GET /users/:id/comments 라우터에는 findAll 메서드에 옵션이 추가되어 있다.
+include 옵션에서 model 속성에는 User 모델을, where 속성에는 :id 로 받은 아이디 값을 넣었다.
+:id는 라우트 매개변수로 6.3 절에서 설명했다.
+req.params.id 로 값을 가져올 수 있다.
+GET /users/1/comments 라면 id가 1인 댓글을 불러온다.
+조회된 댓글 객체에는 include로 넣어준 사용자 정보도 들어 있으므로 작성자의 이름이나 나이 등을 조회할 수 있다.
+
+다음은 comments.js이다.
+
+    comments.js
+
+댓글에 관련된 CRUD 작업을 하는 라우터이다.
+POST /comments, PATH /comments/:id, DELETE/comments/:id 를 등록했다.
+POST /comments 라우터는 댓글을 생성하는 라우터이다.
+commenter 속성에 사용자 아이디를 넣어 사용자와 댓글을 연결한다.
+
+PATH /comments/:id와 DELETE /comments/:id 라우터는 각각 댓글을 수정, 삭제하는 라우터이다.
+수정과 삭제에는 각각 update와 destory 메서드를 사용한다.
+기억나지 않는다면 7.6.4절을 복습하자.
+
+이제 npm start 로 서버를 실행하고 localhost 3001로 접속해보자.
+콘솔에는 시퀄라이즈가 수행하는 SQL 문이 나오므로 어떤 동작을 하는지 확인할 수 있다.
+Excuting으로 시작하는 SQL 구문을 보고 싶지 않다면 config/config.json의 dialect 속성 밑에 "logging":false를 추가하면 된다.
+접속 시 GET /라우터에서 User.findAll 메서드를 호출하므로 그에 따른 SQL 문이 실행되는 모습이다.
+
+
+이 장에서는 MySQL과 시퀄라이즈를 간단히 알아봤다.
+SQL 문을 따로 배우지 않아서 정밀한 데이터베이스 작업을 하는 데는 무리가 따르지만,
+지금까지 배운 내용이면 앞으로 실습을 진행하기에 충분하다.
+그렇더라고 SQL은 따로 배워두는 것이 좋다.
+시퀄라이즈로 모든 데이터베이스 작업을 할 수 없으므로, 나중에는 직접 SQL을 사용해야 하는 경우가 생길 수 있기 때문이다.
+
+
+
+
+
 

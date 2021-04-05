@@ -33,7 +33,7 @@ app.use(express.urlencoded({ extended: false }));
 //라우터
 app.use('/', indexRouter);
 app.use('/users', usersRouter);
-app.use('/comments', commentRouter);
+app.use('/comments', commentsRouter);
 //
 
 

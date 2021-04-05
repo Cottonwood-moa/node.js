@@ -537,6 +537,7 @@ userRouter는 use의 '/user'와 get의 '/'가 합쳐져 GET /user 라우터가 �
         console.log('실행됩니다.');
         res.send('Hello, Express);
     });
+    
 위 예제처럼 같은 주소의 라우터를 여러 개 만들어도 된다.
 라우터가 몇 개든 간에 next()를 호출하면 다음 미들웨어가 실행된다.
 첫 번째 라우터의 첫 번째 미들웨어에서 next() 대신 next('route')를 호출했다.
