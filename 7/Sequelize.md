@@ -396,4 +396,15 @@ where 옵션에 조건들을 적는다.
 destory 메서드로 삭제한다.
 where 옵션에 조건들을 적는다.
 
+관계 쿼리
+findOne이나 findAll 메서드를 호출할 때 프로미스의 결과로 모델을 반환한다.
+(findAll은 모두 찾는 것이므로 모델의 배열을 반환한다.)
+
+    const user = await User.findOne({});
+    console.log(user.nick);// 사용자 닉네임
+
+User 모델의 정보에 바로 접근할 수 있지만 더 편리한 점은 관계 쿼리를 지원한다는 점이다.
+MySQL 로 따지면 JOIN 기능이다.
+현재 User 모델은 Comment 모델과 hasMany-belongsTo 관계가 맺어져있다.
+만약 특정 사용자를 가져오면서 그 사람의 댓글까지 모두 가져오고 싶다면 include 속성을 사용한다.
 
