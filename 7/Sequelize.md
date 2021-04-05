@@ -17,6 +17,7 @@ MariaDB, PostgreSQL, SQLite, MSSQL 등 다른 데이터베이스도 같이 쓸 �
     "name": "learnsequelize",
     "version": "0.0.1",
     "description": "시퀄라이즈를 배우자",
+    
     "main": "index.js",
     "scripts": {
         "start": "nodemon app"
