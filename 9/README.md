@@ -44,3 +44,25 @@ npx 명령어를 사용하는 이유는 전역 설치를 피하기 위해서다.
 
     npm i express cookie-parser express-session morgan dotenv nunjucks
     npm i -D nodemon
+
+모두 6장에서 설명한 패키지들이다.
+
+    app.js
+
+라우터로는 현재 pageRouter 만 있지만, 추후에 더 추가할 예정이다.
+라우터 이후에는 404 응답 미들웨어와 에러 처리 미들웨어가 있다.
+마지막으로 앱을 8001번 포트에 연결했다.
+
+    .env
+
+하드 코딩된 비밀번호가 유일하게 남아 있는 파일이 있다.
+시퀄라이즈 설정을 담아둔 config.json 이며 JSON 파일이라 process.env 를 사용할 수 없다.
+시퀄라이즈의 비밀번호를 숨기는 방법은 15.1.2 절에서 알아보자.
+
+기본적인 라우터와 템플릿 엔진도 만들어보자.
+routes 폴더 안에는 page.js를 , views 폴더 안에는 layout.html, main.html, join.html, error.html을 생성한다.
+약간의 디자인을 위해 main.css를 public 폴더 안에 생성한다.
+
+
+
+
