@@ -101,6 +101,7 @@ User 모델을 만들고 모듈로 exports 했다.
 User 모델은 Sequelize.Model 을 확장한 클래스로 선언한다.
 클래스 문법을 사용하지만 클래스에 대한 지식이 없어도 사용할 수 있다.
 패턴만 숙지하면 된다.
+
 모델은 크케 static init 메서드와 static associate 메서드로 나뉜다.
 init 메서드에는 테이블에 대한 설정을 하고, associate 메서드에는 다른 모델과의 관계를 적는다.
 init 메서드부터 살펴보자.
