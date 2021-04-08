@@ -377,3 +377,28 @@ Passport 는 req 객체에 isAuthenticated 메서드를 추가한다.
 isLoggedIn과 isNotLoggedIn 미들웨어를 만들었다.
 이 미들웨어들이 page 라우터에 어떻게 사용되는지 보자.
 
+    const { isLoggedIn, isNotLoggedIn } = require('./middlewares');
+    ...
+    router.use((req,res,next)=>{
+        res.locals.user=req.user;
+        ...
+    });
+
+    router.get('/profile', isLoggedIn, (req,res)=>{
+        res.render('profile', { title: '내 정보 - NodeBird' });
+    });
+
+    router.get('/join', isNotloggedIn, (req,res)=>{
+        res.render('join', { title: '회원가입 - NodeBird' });
+    });
+
+자신의 프로필은 로그인을 해야 볼 수 있으므로 isLoggedIn 미들웨어를 사용한다.
+req.isAuthenticated()가 true여야 next가 호출되어 res.render가 있는 미들웨어로 넘어갈 수 있다.
+false라면 로그인 창이 있는 메인 페이지로 리다이렉트 된다.
+
+회원가입 페이지는 로그인을 하지 않은 사람에게만 보여야 한다.
+따라서 isNotLoggedIn 미들웨어로 req.isAuthenticated()가 false 일 때만 next를 호출하도록 했다.
+로그인 여부로만 미들웨어를 만들 수 있는 것이 아니라 팔로잉 여부, 관리자 여부 등의 미들웨어를 만들 수도 있으므로 다양하게 활용할 수 있다.
+res.locals.user 속성에 req.user를 넣은 것을 주목하자.
+넌적스에서 user 객체를 통해 사용자 정보에 접근할 수 있게 되었다.
+이제 회원가입, 로그인, 로그아웃 라우터를 작성해보자.
