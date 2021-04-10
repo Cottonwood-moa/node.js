@@ -59,4 +59,16 @@ router.post('/', isLoggedIn, upload2.none(), async (req, res, next) => {
   }
 });
 
+//삭제
+router.delete('/:id', async (req,res,next)=>{
+  try{
+    await Post.destroy({where: {id: req.params.id, userId: req.user.id}});
+    res.send('OK');
+  } catch(error){
+    console.error(error);
+    next(error);  
+  }
+});
+
+
 module.exports = router;
