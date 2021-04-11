@@ -39,7 +39,7 @@
       <button class="twit-delete">삭제</button>
       {% endif %}
 
-      <pre><div class="twit-content">{{twit.content}}</div></pre>
+      <div class="twit-content" style="white-space: pre;">{{twit.content}}</div>
       {% if twit.img %}
       <div class="twit-img"><img src="{{twit.img}}" alt="섬네일"></div>
       {% endif %}
@@ -107,11 +107,6 @@
       }
     });
   });
-
-  var str = document.getElementsByClassName("twit-id").value;
-  str = str.replace(/(?:\r\n|\r|\n)/g, '<br/>');
-  document.getElementsByClassName("twit-id").value = str;
-
 
 
 </script>
