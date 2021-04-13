@@ -25,6 +25,7 @@ MariaDB, PostgreSQL, SQLite, MSSQL 등 다른 데이터베이스도 같이 쓸 �
     "author": "Cottonwood",
     "license": "ISC"
     }
+    
 
 이제 시퀄라이즈에 필요한 sequelize와 sequelize-cli, mysql2 패키지를 설치한다.
 
@@ -33,7 +34,7 @@ MariaDB, PostgreSQL, SQLite, MSSQL 등 다른 데이터베이스도 같이 쓸 �
 
 sequelize-cli는 시퀄라이즈 명령어를 실행하기 위한 패키지이고, mysql2는 MySQL과 시퀄라이즈를 이어주는 드라이버다.
 mysql2 자체가 데이터베이스 프로그램은 아니므로 오해하면 안된다.
-설치 오나료 후 sequelize init 명령어를 호출하면 된다.
+설치 완료 후 sequelize init 명령어를 호출하면 된다.
 전역 설치 없이 명령어로 사용하려면 앞에 npx를 붙이면 된다.
 
     Sequelize CLI [Node: 14.15.1, CLI: 6.2.0, ORM: 6.6.2]
@@ -48,7 +49,7 @@ models 폴더 안의 index.js가 생성되었는지 확인한다.
 sequelize-cli가 자동으로 생성해주는 코드는 그대로 사용할 때 에러가 발생하고, 필요 없는 부분도 많으므로 바꿀 필요가 있다.
 
 Sequelize는 시퀄라이즈 패키지이자 생성자이다.
-config/config.json 에서 데이터베이스 설정을 볼러온 후 new Sequelize를 통해 MySQL 연결 객체를 생성한다.
+config/config.json 에서 데이터베이스 설정을 불러온 후 new Sequelize를 통해 MySQL 연결 객체를 생성한다.
 연결 객체를 나중에 재사용하기 위해 db.sequelize에 넣어두었다.
 
 ## MySQL 연결하기
@@ -199,11 +200,11 @@ users 테이블의 로우 하나를 불러올 때 연결된 comments 테이블�
 반대로 belongTo 메서드도 있다.
 comments 테이블의 로우를 불러올 때 연결된 users 테이블의 로우를 가져올 수 있다.
 모델 각각의 static associate 메서드에 넣는다.
-
+//user model
     static associate(db) {
         db.User.hasMany(db.Comment, {foreignKey: 'commenter', sourceKey:'id'});
     }
-
+//comment model
     static associate(db) {
         db.Comment.belongsTo(db.User, {foreignKey:'commenter', targetKey:'id'});
         }
@@ -214,11 +215,11 @@ comments 테이블의 로우를 불러올 때 연결된 users 테이블의 로�
 사용자는 한 명이고, 그에 속한 댓글은 여러 개이므로 댓글 로우에 사용자가 누구인지 적어야 한다.
 시퀄라이즈는 위에서 정의한 대로 모델 간 관계를 파악해서 Comment 모델에 foreignKey인 commenter 컬럼을 추가한다.
 Commenter 모델의 외래 키 컬럼은 commenter고, User 모델의 id 컬럼을 가리키고 있다.
-hamMany 메서드에서는 souceKey 속성에 id 를 넣고, belongsTo 메서드에서는 targetKey 속성에 id를 넣는다.
+hamMany 메서드에서는 sourceKey 속성에 id 를 넣고, belongsTo 메서드에서는 targetKey 속성에 id를 넣는다.
 sourceKey의 id 와 targetKey의 id 모두 User 모델의 id 이다.
 hasMany에서는 sourceKey를 쓰고 belongsTo에서는 targetKey를 쓴다고 생각하면 된다.
-foreignKey를 따로 지정하지 않는다면 이름이 모델명+ 기본 키인 컬럼이 모델에 생성된다.
-예를들어 commenter를 foreignKey로 직접 넣어주지 않았따면 user(모델명)+기본키(id)가 합쳐진 UserId가 foreignKey로 생성된다.
+foreignKey를 따로 지정하지 않는다면 이름이 모델명 + 기본 키인 컬럼이 모델에 생성된다.
+예를들어 commenter를 foreignKey로 직접 넣어주지 않았다면 user(모델명)+기본키(id)가 합쳐진 UserId가 foreignKey로 생성된다.
 
 npm start 명령어로 서버를 시작하고 나서 콘솔을 보면 다음과 같은 메시지가 나온다.
 시퀄라이즈가 스스로 실행하는 SQL 문이다.
@@ -345,6 +346,7 @@ Op.or을 한번 사용해보자.
     });
 
 Op.or 속성에 OR 연산을 적용할 쿼리들을 배열로 나열하면 된다.
+
 
     SELECT id, name FROM users ORDER BY age DESC;
     User.findAll({
