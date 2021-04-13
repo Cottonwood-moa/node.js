@@ -236,10 +236,10 @@ CREATE TABLE 뒤에 IF NOT EXISTS 라고 되어 있는데, 이 부분은 테이�
 대신 실수로 테이블을 삭제했을 때는 위의 구문으로 인해 다시 테이블이 생성된다.
 예제에는 사용되지 않았지만 1:1관계와 N:M 관계도 알아보자.
 
- # 1:1
- 1:1 관계에서는 hasMany 메서드 대신 hasOne메서드를 사용한다.
- 사용자 정보를 담고 있는 가상의 Info 모델이 있다고 하면 다음과 같이 표현할 수 있다.
-
+# 1:1
+1:1 관계에서는 hasMany 메서드 대신 hasOne메서드를 사용한다.
+사용자 정보를 담고 있는 가상의 Info 모델이 있다고 하면 다음과 같이 표현할 수 있다.
+    
     db.User.hasOne(db.Info, {foreignKey: 'UserId', sourceKey:'id'});
     db.User.belongsTo(db.User, {foreignKey: 'UserId', targetKey:'id'});
 
@@ -267,7 +267,7 @@ N:M에서는 데이터를 조회할 때 여러 단계를 거쳐야 한다.
     db.sequelize.models.PostHashtag
 
 다음 절에서는 모델들을 사용해서 CRUD 작업을 진행하여 보자.
-
+<!-- (2) -->
 ## 쿼리알아보기
 시퀄라이즈로 CRUD 작업을 하려면 먼저 시퀄라이즈 쿼리를 알아야 한다.
 SQL 문을 자바스크립트로 생성하는 것이라 시퀄라이즈만의 방식이 있다.
