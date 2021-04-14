@@ -164,4 +164,49 @@ JWT 토큰의 단점은 용량이 크다는 것이다.
 이렇게 장단점이 뚜렷하므로 적절한 경우에 사용하면 좋다.
 비용을 생각하면 판단하기 쉽다.
 랜덤 스트링을 사용해서 매번 사용자 정보를 조회하는 작업의 비용이 더 큰지, 내용물이 들어있는 JWT 토큰을 사용해서 발생하는 데이터 비용이 더 큰지 비교하면 된다.
+이제 웹 서버에 JWT 토큰 인증 과정을 구현해보자.
+먼저 JWT 모듈을 설치한다.
+
+    npm i jsonwebtoken
+
+이제 JWT 를 사용해서 본격적으로 API 를 만들어보자.
+다른 사용자가 API 를 쓰려면 JWT 토큰을 발급받고 인증받아야 한다.
+이는 대부분의 라우터에 공통적으로 해당하는 부분이므로 미들웨어로 만들어두는 게 좋다.
+
+
+    const jwt = require('jsonwebtoken');
+
+    ...
+
+    exports.verifyToken = (req, res, next) => {
+        try {
+        req.decoded = jwt.verify(req.headers.authorization, process.env.JWT_SECRET);
+        return next();
+        } catch (error) {
+        if (error.name === 'TokenExpiredError') { // 유효기간 초과
+            return res.status(419).json({
+            code: 419,
+            message: '토큰이 만료되었습니다',
+            });
+        }
+        return res.status(401).json({
+            code: 401,
+            message: '유효하지 않은 토큰입니다',
+        });
+        }
+    };
+
+요청 헤더에 저장된 토큰(req.headers.authorization)을 사용한다.
+사용자가 쿠키처럼 헤더에 토큰을 넣어 보낼 것이다.
+jwt.verify 메서드로 토큰을 검증할 수 있다.
+메서드의 첫 번째 인수로는 토큰을, 두 번째 인수로는 토큰의 비밀 키를 넣는다.
+
+토큰의 비밀 키가 일치하지 않는다면 인증을 받을 수 없다.
+그런 경우에는 에러가 발생하여 catch 문으로 이동하게 된다.
+또한, 올바른 토큰이라도 유호 기간이 지난 경우라면 역시 catch 문으로 이동한다.
+유효 기간 만료 시 419 상태 코드를 응답하는데, 코드는 400 번대 숫자 둥에서 마음대로 정해도 된다.
+
+인증에 성공한 경우에는 토큰의 내용이 반환되어 req.decoded 에 저장된다.
+토큰의 내용은 조금 전에 넣은 사용자 아이디와 닉네임, 발급자, 유효 기간 등이다.
+req.decoded 를 통해 다음 미들웨어에서 토큰의 내용물을 사용할 수 있다.
 
