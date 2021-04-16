@@ -20,6 +20,10 @@ input[type='text'], input[type='email'], input[type='password'], textarea {
   padding: 10px;
   border: 1px solid silver;
 }
+input:focus {outline:none;}
+textarea:focus {outline: none;}
+
+
 img{
   border-radius: 20px;
 }
