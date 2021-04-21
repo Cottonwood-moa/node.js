@@ -258,10 +258,55 @@ code가 200번대 숫자가 아니면 에러이고, 에러의 내용은 message 
 방금 만든 라우터를 서버에 연결하자.
 
 
-JWT 토큰으로 로그인하려면
+NOTE! JWT 토큰으로 로그인하려면
 최근에는 JWT토큰을 사용해서 로그인하는 방법이 많이 사용되고 있다.
 세션을 사용하지 않고 로그인할 수 있기 때문이다.
 로그인 완료 시 세션에 데이터를 저장하고 세션 쿠리를 발급하는 대신 JWT 토큰을 쿠키로 발급하면 된다.
 다음과 같이 authenticate 메서드의 두 번째 인수로 옵션을 주면 세션을 사용하지 않을 수 있다.
 
+    ...
+    router.post('/login', isNotLoggedIn,(req,res,next)=>{
+        passport.authenticate('local',{session:false}, (authErr, user,info)=>{
+            if(authErr){
+    ...
+    
+세션에 데이터를 저장하지 않으므로 serializeUser 와 deserializeUser 는 사용하지 않는다.
+그 후 모든 라우터에 verifyToken 미들웨어를 넣어 클라이언트에서 보낸 쿠리를 검사한 후 토큰이 유효하면 라우터로 넘어가고 그렇지 않으면 401이나 419 에러를 응답하면 된다.
+사용자 권한 확인을 위해 데이터베이스를 사용하지 않으므로 (JWT 토큰 내부에 넣어두면 된다.)서비스의 규모가 클수록 데이터베이스의 부담을 줄일 수 있다.
+
+NOTE! 클라이언트에서 JWT 를 사용하고 싶다면?
+클라이언트 환경에서는 process.env.JWT_SECRET(비밀 키)이 노출되면 안된다.
+그럼에도 verify 나 sign 같은 메서드를 사용해야 한다면 RSA 같은 양방향 비대칭 암호화 알고리즘을 사용해야 한다.
+서버 환경에서는 비밀 키를 사용하고 클라이언트 환경에서는 공개 키를 사용하는 방식으로 클라이언트에서 비밀 키가 노출되는 것을 막을 수 있다.
+공식 문서에서 PEM 키를 사용하는 부분을 참고하면 된다.
+
+# 다른 서비스에서 호출하기
+API 제공 서버를 만들었으니 API를 사용하는 서비스도 만들어보자.
+이 서비스는 다른 서버에게 요청을 보내므로 클라이언트 역할을 한다.
+API 제공자가 아닌 API 사용자의 입장에서 진행하는 것이며, 바로 NodeBird 앱의 데이터를 가져오고 싶어 하는 사용자이다.
+보통 그 데이터를 가공해 2차적인 서비스를 하려는 회사가 API 를 많이 사용한다.
+예를 들어 쇼핑몰등이 있으면, 쇼핑몰들의 최저가를 알려주는 서비스가 2차 서비스가 된다.
+우리의 2차 서비스 이름은 NodeCat 이다.
+nodebird-api 폴더와 같은 위치에 nodecat 이라는 새로운 폴더를 만든다.
+별도의 서버이므로 nodebird-api와 코드가 섞이지 않게 주의하자.
+
+    nodecat/pakcage.json
+
+    npm i axios cookie-parser dotenv express express-session morgan nunjucks
+    npm i -D nodemon
+
+이 서버의 주목적은 nodebird-api의 API를 통해 데이터를 가져오는 것이다.
+가져온 데이터는 JSON 형태이므로 퍼그나 넌적스 같은 템플릿 엔진으로 데이터를 렌더링할 수도 있다.
+서버 파일과 에러를 표시할 파일을 생성한다.
+
+    nodecat/app.js
+
+사용하지 않는 미들웨어는 걷어내고 최소한으로 app.ks 를 구성했다.
+
+    view/error.html
+
+API를 사용하려면 먼저 사용자 인증을 받아야 하므로 사용자 인증이 원활하게 징행되는지 테스트하는 라우터를 만들어보자.
+조금 전에 발급받은 clientSecret을 .env에 넣는다.
+
+    nodecat/.env
 
