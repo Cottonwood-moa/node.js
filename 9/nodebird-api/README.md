@@ -38,7 +38,7 @@ npm init 으로 생성한 후 dependencies 들을 설치해도 되고 깃허브�
     npm i bcrypt cookie-parser dotenv morgan mysql2 nunjucks passport passport-kakao passport-local sequelize uuid express express-session
     npm i -D nodemon
 
-NodeBird 에서 config, models, passport 폴더와 내용물들을 모두 복사해서 nodebird-api 폴더에 붙여 널는다.
+NodeBird 에서 config, models, passport 폴더와 내용물들을 모두 복사해서 nodebird-api 폴더에 붙여 넣는다.
 routes 폴더에서는 auth.js 와 middlewares.js 만 그대로 사용한다.
 마지막으로 .env 파일을 복사한다.
 다른 폴더와 파일은 새로 나올 때마다 직접 생성하면 된다.
