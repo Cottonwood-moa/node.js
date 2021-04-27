@@ -388,3 +388,7 @@ GET / 라우터는 만들지 않았기 때문이다.
 이러한 기능 또한 npm에 패키지로 만들어져 있다.
 이 기능을 제공하는 express-rate-limit 패키지다.
 nodebird-api 서버에 다음 패키지를 설치한다.
+
+    nodebird-api/routes/middlewares.js
+
+이제 apiLimiter 미들웨어를 라우터에 넣으면 라우터에 사용량 제한이 걸린다.
