@@ -2,10 +2,9 @@ const express = require('express');
 const axios = require('axios');
 
 const router = express.Router();
-const URL = 'http://localhost:8002/v1';
+const URL = 'http://localhost:8002/v2';
 
 axios.defaults.headers.origin = 'http://localhost:4000'; // origin 헤더 추가
-/* ----------------------------------------------------------------------------------- 1번 */
 const request = async (req, api) => {
   try {
     if (!req.session.jwt) { // 세션에 토큰이 없으면
@@ -25,7 +24,7 @@ const request = async (req, api) => {
     return error.response;
   }
 };
-/* ----------------------------------------------------------------------------------- 2번 */
+
 router.get('/mypost', async (req, res, next) => {
   try {
     const result = await request(req, '/posts/my');
@@ -35,7 +34,7 @@ router.get('/mypost', async (req, res, next) => {
     next(error);
   }
 });
-/* ----------------------------------------------------------------------------------- 3번 */
+
 router.get('/search/:hashtag', async (req, res, next) => {
   try {
     const result = await request(
