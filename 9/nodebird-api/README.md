@@ -459,3 +459,33 @@ deprecated 미들웨어는 사용하면 안 되는 라우터에 붙여줄 것이
 보통 레디스가 많이 사용된다.
 단, express-rate-limit 은 데이터베이스와 연결하는 것을 지원하지 않으므로 npm 에서 새로운 패키지를 찾아보거나 직접 구현해야 한다.
 
+## CORS 이해하기
+
+이전 절에서 NodeCat이 nodebird-api 를 호출하는 것은 서버에서 서버로 API를 호출한 것이다.
+만약 NodeCat의 프런트에서 nodebird-api의 서버API를 호출하면 어떻게 될까?
+
+routes/index.js에 프런트 화면을 렌더링 하는 라우터를 추가하자.
+
+    nodecat/routes/index.js
+
+    router.get('/', (req,res)=>{
+  res.render('main', {key:process.env.CLIENT_SECRET});
+});
+
+프런트 화면도 추가한다.
+
+    nodecat/view/main.html
+
+clientSecret의 {{key}} 부분이 넌적스에 의해 실제 키로 치환돼서 렌더링된다.
+단, 실제 서비스에서는 서버에서 사용하는 비밀 키와 프런트에서 사용하는 비밀 키를 따로 두는 게 좋다.
+보통 서버에서 사용하는 비밀 키가 더 강력하기 때문이다.
+프런트에서 사용하는 비밀 키는 모든 사람에세 노출된다는 단점도 따른다.
+데이터베이스에서 clientSecret 외에 frontSecret 같은 컬럼을 추가해서 따로 관리하는 것은 권장한다.
+
+localhost:4000 에 접속하면 에러가 발생하며 제대로 동작하지 않는다.
+브라우저 콘솔창을 보면 에러를 확인할 수 있다.
+Access-Control-Allow-Origin 이라는 헤더가 없다는 내용의 에러이다.
+이처럼 브라우저와 서버의 도메인이 일치하지 않으면, 기본적으로 요청이 차단된다.
+이 현상은 브라우저에서 서버로 요청을 보낼 때만 발생하고, 서버에서 서버로 요청을 보낼 때는 발생하지 않는다.
+현재 요청을 보내는 클라이언트(localhost:4000)와 요청을 받는 서버(localhost:8002)의 도메인이 다르다.
+이 문제를 CORS(Cross-Origin Rescure Sharing)문제라고 부른다.
