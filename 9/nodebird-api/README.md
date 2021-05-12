@@ -489,3 +489,8 @@ Access-Control-Allow-Origin 이라는 헤더가 없다는 내용의 에러이다
 이 현상은 브라우저에서 서버로 요청을 보낼 때만 발생하고, 서버에서 서버로 요청을 보낼 때는 발생하지 않는다.
 현재 요청을 보내는 클라이언트(localhost:4000)와 요청을 받는 서버(localhost:8002)의 도메인이 다르다.
 이 문제를 CORS(Cross-Origin Rescure Sharing)문제라고 부른다.
+
+Network 탭을 보면 Method가 POST 대신 OPTIONS 로 표시된다.
+OPTIONS 메서드는 실제 요청을 보내기 전에 서버가 이 도메인을 허용하는지 체크하는 역할을 한다.
+
+NodeBird API 서버 콘솔에도 OPTIONS 요청이 기록된다.
