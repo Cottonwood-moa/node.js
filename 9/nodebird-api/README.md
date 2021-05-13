@@ -494,3 +494,10 @@ Network 탭을 보면 Method가 POST 대신 OPTIONS 로 표시된다.
 OPTIONS 메서드는 실제 요청을 보내기 전에 서버가 이 도메인을 허용하는지 체크하는 역할을 한다.
 
 NodeBird API 서버 콘솔에도 OPTIONS 요청이 기록된다.
+
+CORS 문제를 해결하기 위해서는 응답 헤더에 Access-Control-Allow-Origin 헤더를 넣어야 한다.
+이 헤더는 클라이언트 도메인의 요청을 허락하겠다는 뜻을 가지고 있다.
+res.set 메서드로 직접 널어도 되지만, npm 에는 편하게 설치할 수 있는 패키지가 있다.
+응답 헤더를 조작하려면 NodeCat이 아니라 NodeBird API 서버에서 바꿔야 한다.
+응답은 API 서버가 보내는 것이기 때문이다.
+NodeBird API에 cors 모듈을 설치하면 된다.
