@@ -501,3 +501,17 @@ res.set 메서드로 직접 널어도 되지만, npm 에는 편하게 설치할 
 응답 헤더를 조작하려면 NodeCat이 아니라 NodeBird API 서버에서 바꿔야 한다.
 응답은 API 서버가 보내는 것이기 때문이다.
 NodeBird API에 cors 모듈을 설치하면 된다.
+
+    $npm i cors
+    nodebird-api/routes/v2.js
+
+router.use로 v2의 모든 라우터에 적용했다.
+이제 응답에 Access-Control-Allow-Origin헤더가 추가되어 나간다.
+credentials: true 라는 옵션도 주었는데, 이 옵션을 활성화해야 다른 도메인 간에 쿠키가 공유된다.
+서버 간의 도메인이 다른 경우에는 이 옵션을 활성화하지 않으면 로그인 되지 않을 수 있다.
+참고로 axios에서도 도메인이 다른데, 쿠키를 공유해야 하는 경우 withcredentials: true 옵션을 줘서 요청을 보내야 한다.
+
+다시 localhost: 4000에 접속해보면 토큰이 발급괸 것을 볼 수 있다.
+이 토큰을 사용해서 다른 API 요청을 보내면 된다.
+토큰이 발급되지 않고 429 에러가 발생한다면 , 이전 절에서 적용한 사용량 제한 때문에 그런 것이므로 제한이 풀릴 때 다시 시도하면 된다.
+
